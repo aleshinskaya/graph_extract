@@ -1,9 +1,8 @@
 <html>
 <head>
-<script type='text/javascript'    
-src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>    
-	<style type='text/css'>      
-  #mynetwork {        
+<script type='text/javascript'src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>    
+<style type='text/css'>      
+ #mynetwork {        
 		width: 800px;         
 		height: 800px;         
 		border: 1px solid lightgray;       
@@ -11,9 +10,11 @@ src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>
 	 </style>
 </head>
 <body>
+<div id='mynetwork'></div>
+
 <script type="text/javascript">    
 
-function window.onload {       
+window.onload = function(){       
 		launch_visualization()    
 }    
 function launch_visualization() {         
@@ -25,18 +26,45 @@ function launch_visualization() {
 	var data = {            
 		nodes: nodes,            
 		 edges: edges         
-};     
-var options = {};       
+		};    
+	var options = {
+		physics: {
+			enabled: true,
+			barnesHut: {
+			theta: 0.5,
+			gravitationalConstant: -5000,
+			centralGravity: 0.3,
+			springLength: 1000,
+			springConstant: 0.01,
+			damping: 5,
+			avoidOverlap: 1
+			} 
+		},
+		manipulation: {
+			enabled: true,
+			initiallyActive: false,
+			addNode: true,
+			addEdge: true,
+			editEdge: true,
+			deleteNode: true,
+			deleteEdge: true,
+		},
+		nodes: {
+			shape: 'circle',
+			font: { size: 18 },
+		}
+	};       
  // initialize your network!         
 	var network = new vis.Network(container, data, options);    
-}    
-<div id="mynetwork"></div>"function return_vis_dataset() {
+}
+function return_vis_dataset() {
 	var nodes = new vis.DataSet([ 
-		{id: 1, label: 'I'},
+		{id: 1, label: 'I', color: { border: '#280a2b',  background: '#9b32a8'}, font: {color: '#f7f0f7',
+      size: 14, face: 'arial'}},
 		{id: 2, label: 'person on the bike'},
 		{id: 3, label: 'boss'},
 		{id: 4, label: 'stop to help and be late for work'},
-		{id: 5, label: 'I am late for my first day of work, which may create a negative impression on my boss and colleagues.'},
+		{id: 5, label: 'I am late for my first day of work, \n which may create a negative impression on my boss and colleagues.'},
 		{id: 6, label: 'The person who crashed their bike may be injured and in need of assistance.'},
 		{id: 7, label: 'I may miss out on important instructions or training at the beginning of my shift.'},
 		{id: 8, label: 'My willingness to help someone in need may be appreciated by the person I assist and others who witness the situation.'},
@@ -45,14 +73,12 @@ var options = {};
 		]);
 	var edges = new vis.DataSet([ 
 		{from: 1, to: 4, label: 'b-link_C+D+K+'},
-		,
 		{from: 4, to: 5, label: 'e_link_'},
 		{from: 4, to: 6, label: 'e_link_'},
 		{from: 4, to: 7, label: 'e_link_'},
 		{from: 4, to: 8, label: 'e_link_'},
 		{from: 4, to: 9, label: 'e_link_'},
 		{from: 4, to: 10, label: 'e_link_'},
-		,
 		{from: 6, to: 1, label: 'utility_-7'},
 		{from: 6, to: 2, label: 'utility_8'},
 		{from: 6, to: 3, label: 'utility_-5'},

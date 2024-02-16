@@ -3,8 +3,8 @@
 <script type='text/javascript'src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>    
 <style type='text/css'>      
  #mynetwork {        
-		width: 800px;         
-		height: 800px;         
+		width: 1200px;         
+		height: 1200px;         
 		border: 1px solid lightgray;       
 	 }   
 	 </style>
@@ -15,7 +15,7 @@
 <script type="text/javascript">    
 
 window.onload = function(){       
-		launch_visualization()    
+	launch_visualization()    
 }    
 function launch_visualization() {         
 	this_dset =  return_vis_dataset()        
@@ -27,34 +27,60 @@ function launch_visualization() {
 		nodes: nodes,            
 		 edges: edges         
 		};    
-	var options = {};       
+	var options = {		
+		physics: {			
+			enabled: true,			
+			barnesHut: {			
+			theta: 0.5,			
+			gravitationalConstant: -5000,			
+			springLength: 500,			
+			springConstant: 0.01,			
+			damping: 5,			
+			avoidOverlap: 1			
+		}		
+	},		
+		manipulation: {			
+			enabled: true,			
+			initiallyActive: false,			
+			addNode: true,			
+			addEdge: true,			
+			editEdge: true,			
+			deleteNode: true,			
+			deleteEdge: true,		
+			},		
+		nodes: {			
+			shape: "circle",            
+			font: { size: 16 },            
+			}	};        
  // initialize your network!         
 	var network = new vis.Network(container, data, options);    
 }
 function return_vis_dataset() {
 	var nodes = new vis.DataSet([ 
-		{id: 1, label: 'I'},
-		{id: 2, label: 'person on the bike'},
-		{id: 3, label: 'boss'},
-		{id: 4, label: 'stop to help and be late for work'},
-		{id: 5, label: 'I am late for my first day of work, which may create a negative impression on my boss and colleagues.'},
-		{id: 6, label: 'The person who crashed their bike may be injured and in need of assistance.'},
-		{id: 7, label: 'I may miss out on important instructions or training at the beginning of my shift.'},
-		{id: 8, label: 'My willingness to help someone in need may be appreciated by the person I assist and others who witness the situation.'},
-		{id: 9, label: 'I may feel a sense of guilt or anxiety about being late for work and the potential consequences of my tardiness.'},
-		{id: 10, label: 'My decision to stop and help may demonstrate my values and character to my boss and colleagues, potentially earning their respect in the long run.'}
+		{id: 1, label: 'I', color: {background: '#279aba'}},
+		{id: 2, label: 'person on the bike', color: {background: '#279aba'}},
+		{id: 3, label: 'boss', color: {background: '#279aba'}},
+		{id: 4, label: 'stop to help and be\n late for work', color: {background: '#ba2769'}},
+		{id: 5, label: 'I am late for my\n first day of work, which\n may create a negative impression\n on my boss and colleagues.', color: {background: '#e6c440'}},
+		{id: 6, label: 'The person who crashed their\n bike may be injured and\n in need of assistance.', color: {background: '#e6c440'}},
+		{id: 7, label: 'I may miss out on\n important instructions or training at\n the beginning of my shift.', color: {background: '#e6c440'}},
+		{id: 8, label: 'My willingness to help someone\n in need may be appreciated\n by the person I assist\n and others who witness the\n situation.', color: {background: '#e6c440'}},
+		{id: 9, label: 'I may feel a sense\n of guilt or anxiety about\n being late for work and\n the potential consequences of my\n tardiness.', color: {background: '#e6c440'}},
+		{id: 10, label: 'My decision to stop and\n help may demonstrate my values\n and character to my boss\n and colleagues, potentially earning their\n respect in the long run.', color: {background: '#e6c440'}}
 		]);
 	var edges = new vis.DataSet([ 
-		{from: 1, to: 4, label: 'b-link_C+D+K+'},
-		{from: 4, to: 5, label: 'e_link_'},
-		{from: 4, to: 6, label: 'e_link_'},
-		{from: 4, to: 7, label: 'e_link_'},
-		{from: 4, to: 8, label: 'e_link_'},
-		{from: 4, to: 9, label: 'e_link_'},
-		{from: 4, to: 10, label: 'e_link_'},
-		{from: 6, to: 1, label: 'utility_-7'},
-		{from: 6, to: 2, label: 'utility_8'},
-		{from: 6, to: 3, label: 'utility_-5'},
+		{from: 1, to: 4, label: 'b-link_C+D+K+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		
+		{from: 4, to: 5, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 6, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 7, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 8, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 9, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 10, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
+		
+		{from: 6, to: 1, label: 'utility_-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 2, label: 'utility_8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 3, label: 'utility_-5', arrows: { to: { enabled: true, type: 'arrow'}}},
 		
 		]);
 
