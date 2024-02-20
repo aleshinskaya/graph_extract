@@ -1,0 +1,125 @@
+<html>
+<head>
+<script type='text/javascript'src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>    
+<style type='text/css'>      
+ #mynetwork {        
+		width: 1200px;         
+		height: 1200px;         
+		border: 1px solid lightgray;       
+	 }   
+	 </style>
+</head>
+<body>
+<div id='mynetwork'></div>
+
+<script type="text/javascript">    
+
+window.onload = function(){       
+	launch_visualization()    
+}    
+function launch_visualization() {         
+	this_dset =  return_vis_dataset()        
+	nodes = this_dset[1]        
+	edges = this_dset[0]        
+	// create a network        
+	var container = document.getElementById("mynetwork");        
+	var data = {            
+		nodes: nodes,            
+		 edges: edges         
+		};    
+	var options = {		
+		physics: {			
+			enabled: true,			
+			barnesHut: {			
+			theta: 0.5,			
+			gravitationalConstant: -5000,			
+			springLength: 500,			
+			springConstant: 0.01,			
+			damping: 5,			
+			avoidOverlap: 1			
+		}		
+	},		
+		manipulation: {			
+			enabled: true,			
+			initiallyActive: false,			
+			addNode: true,			
+			addEdge: true,			
+			editEdge: true,			
+			deleteNode: true,			
+			deleteEdge: true,		
+			},		
+		nodes: {			
+			shape: "circle",            
+			font: { size: 16 },            
+			},         
+		edges: {         
+			length: 2000,         
+		},
+		};        
+ // initialize your network!         
+	var network = new vis.Network(container, data, options);    
+}
+function return_vis_dataset() {
+	var nodes = new vis.DataSet([ 
+		{id: 1, label: 'I', color: {background: '#279aba'}},
+		{id: 2, label: 'local store boss', color: {background: '#279aba'}},
+		{id: 3, label: 'person on bike', color: {background: '#279aba'}},
+		{id: 4, label: 'stop to help and be\n late for work', color: {background: '#ba2769'}},
+		{id: 5, label: 'I will be late for\n my first day of work,\n potentially upsetting my boss and\n creating a negative first impression.', color: {background: '#e6c440'}},
+		{id: 6, label: 'The person who crashed may\n be injured and in need\n of assistance, and I may\n be able to provide help\n and support.', color: {background: '#e6c440'}},
+		{id: 7, label: 'By stopping to help, I\n may demonstrate compassion and empathy,\n potentially earning goodwill from the\n person I assist and others\n who witness the event.', color: {background: '#e6c440'}},
+		{id: 8, label: 'My decision to stop and\n help may lead to a\n positive impact on the injured\n person's well-being and potentially even\n save their life.', color: {background: '#e6c440'}},
+		{id: 9, label: 'There is a possibility that\n my boss may understand and\n appreciate my willingness to help\n someone in need, leading to\n a positive impression despite being\n late.', color: {background: '#e6c440'}},
+		{id: 10, label: 'On the other hand, my\n boss may be strictly focused\n on punctuality and may reprimand\n me for being late, potentially\n leading to a strained relationship\n from the beginning.', color: {background: '#e6c440'}}
+		]);
+	var edges = new vis.DataSet([ 
+		{from: 1, to: 4, label: 'C+D+K+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 5, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 6, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 7, label: 'C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 8, label: 'C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 9, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 10, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 5, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 6, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 7, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 8, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 9, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 10, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 5, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 6, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 7, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 8, label: 'C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 9, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 10, label: 'C+K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 5, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 6, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 7, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 8, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 9, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 10, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 1, label: '-8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 2, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 1, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 2, label: '-5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 1, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 2, label: '-3', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 1, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 2, label: '-5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 3, label: '10', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 1, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 2, label: '3', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 1, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 2, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		]);
+
+	return ([edges,nodes])
+}
+</script>
+</body>
+</html>

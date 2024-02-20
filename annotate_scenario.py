@@ -195,13 +195,12 @@ def write_jsonlines(fname,jlist):
 def main(scenario_json,output_filename):
    
    # validate the scenario json
-   assert scenario_json['id']
-   assert scenario_json['text']
-   assert scenario_json['options']
-
-
+    assert scenario_json['id']
+    assert scenario_json['text']
+    assert scenario_json['options']
+    
     # loop over actions 
-    for act_id in scenario_json['options'].keys():
+    for act_id in scenario_json['options'].keys():     
 
         print('\n\nProcessing choice '+act_id)   
         this_act = scenario_json['options']["1"]
@@ -290,24 +289,13 @@ def main(scenario_json,output_filename):
         print('\n\nWriting to file: '+this_output_filename)
         # write out json file
         write_jsonlines(DATA_DIR+this_output_filename,g_print)
-        # send this json file as input to graph visualization, outputs html
-        importlib.reload(translate_to_vis)
+
+
+        # send this json file as input to graph visualization, outputs html     
 
         translate_to_vis.main(DATA_DIR+this_output_filename)
         
-    #end for this action
 
 
-# # example inputs
 
-# filename = "scenarios.json"
-# scenario_id = 2
 
-# with open(DATA_DIR+"scenarios.json", 'r') as file:
-#     scenarios=json.load(file)
-
-#     this_scenario_text = scenarios[scenario_id]["text"]
-    
-#     output_filename = filename.split('.json')[0]+'_'+str(scenario_id)+'.json'
-#     scenario_json = scenarios[scenario_id]
-    

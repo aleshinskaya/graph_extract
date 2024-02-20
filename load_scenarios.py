@@ -3,6 +3,7 @@ import json
 import os
 import textwrap 
 import typer
+import annotate_scenario
 
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
 DATA_DIR = CUR_DIR+'/data/'
@@ -17,9 +18,9 @@ def main(filename = "scenarios.json", scenario_id = 2):
     print('Scenario Text: \n\n')
     print(textwrap.fill(this_scenario_text, width = 100), '\n\n')
 
-    output_filename = filename.split('.json')[0]+'_'+str(scenario_id)+'.json'
+    output_filename = filename.split('.json')[0]+'_'+str(scenario_id)
 
-    annotate_scenario(scenarios[scenario_id],output_filename)
+    annotate_scenario.main(scenarios[scenario_id],output_filename)
 
 
 if __name__ == "__main__":

@@ -3,8 +3,8 @@
 <script type='text/javascript'src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>    
 <style type='text/css'>      
  #mynetwork {        
-		width: 1200px;         
-		height: 1200px;         
+		width: 2280px;         
+		height: 2280px;         
 		border: 1px solid lightgray;       
 	 }   
 	 </style>
@@ -51,84 +51,119 @@ function launch_visualization() {
 		nodes: {			
 			shape: "circle",            
 			font: { size: 16 },            
-			}	};        
+			},         
+		edges: {         
+			length: 2000,         
+		},	};        
  // initialize your network!         
 	var network = new vis.Network(container, data, options);    
 }
 function return_vis_dataset() {
 	var nodes = new vis.DataSet([ 
 		{id: 1, label: 'I', color: {background: '#279aba'}},
-		{id: 2, label: 'someone on a bike', color: {background: '#279aba'}},
-		{id: 3, label: 'my boss', color: {background: '#279aba'}},
+		{id: 2, label: 'local store boss', color: {background: '#279aba'}},
+		{id: 3, label: 'person on bike', color: {background: '#279aba'}},
 		{id: 4, label: 'stop to help and be\n late for work', color: {background: '#ba2769'}},
 		{id: 5, label: 'I will be late for\n my first day of work,\n potentially upsetting my boss and\n creating a negative first impression.', color: {background: '#e6c440'}},
-		{id: 6, label: 'The person who crashed may\n be injured and in need\n of assistance, which could delay\n my arrival at work even\n further.', color: {background: '#e6c440'}},
-		{id: 7, label: 'My decision to stop and\n help the person in need\n may demonstrate my compassion and\n willingness to help others, potentially\n earning me goodwill from my\n boss and colleagues.', color: {background: '#e6c440'}},
-		{id: 8, label: 'The delay in my arrival\n at work may impact the\n opening and preparation process, potentially\n causing some initial disorganization at\n the store.', color: {background: '#e6c440'}},
-		{id: 9, label: 'My act of kindness may\n lead to a positive interaction\n with the person I helped,\n potentially creating a new connection\n or friendship.', color: {background: '#e6c440'}},
-		{id: 10, label: 'My decision to prioritize helping\n someone in need over punctuality\n may reflect positively on my\n character, demonstrating my values and\n priorities to my boss and\n colleagues.', color: {background: '#e6c440'}}
+		{id: 6, label: 'The person who crashed may\n be injured and in need\n of assistance, and I may\n be able to provide help\n and support.', color: {background: '#e6c440'}},
+		{id: 7, label: 'By stopping to help, I\n may demonstrate compassion and empathy,\n potentially earning goodwill from the\n person I assist and others\n who witness the event.', color: {background: '#e6c440'}},
+		{id: 8, label: 'My decision to stop and\n help may lead to a\n positive impact on the injured\n person's well-being and potentially even\n save their life.', color: {background: '#e6c440'}},
+		{id: 9, label: 'There is a possibility that\n my boss may understand and\n appreciate my willingness to help\n someone in need, leading to\n a positive impression despite being\n late.', color: {background: '#e6c440'}},
+		{id: 10, label: 'On the other hand, my\n boss may be strictly focused\n on punctuality and may reprimand\n me for being late, potentially\n leading to a strained relationship\n from the beginning.', color: {background: '#e6c440'}},
+		{id: 11, label: 'I', color: {background: '#279aba'}},
+		{id: 12, label: 'someone on a bike', color: {background: '#279aba'}},
+		{id: 13, label: 'my boss', color: {background: '#279aba'}},
+		{id: 14, label: 'stop to help and be\n late for work', color: {background: '#ba2769'}},
+		{id: 15, label: 'I will be late for\n my first day of work,\n potentially upsetting my boss and\n creating a negative first impression.', color: {background: '#e6c440'}},
+		{id: 16, label: 'The person who crashed may\n be injured and in need\n of assistance, which could delay\n my arrival at work even\n further.', color: {background: '#e6c440'}},
+		{id: 17, label: 'My decision to stop and\n help the person in need\n may demonstrate my compassion and\n willingness to help others, potentially\n earning me goodwill from my\n boss and colleagues.', color: {background: '#e6c440'}},
+		{id: 18, label: 'If I am late, I\n may need to explain the\n situation to my boss and\n apologize, which could lead to\n a better understanding and forgiveness.', color: {background: '#e6c440'}},
+		{id: 19, label: 'The delay in arriving at\n work may impact the store's\n opening and preparation process, potentially\n causing some inconvenience for my\n colleagues and customers.', color: {background: '#e6c440'}}
 		]);
 	var edges = new vis.DataSet([ 
-		{from: 1, to: 4, label: 'b-link_C+D+K+', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 5, label: 'b_link_C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 6, label: 'b_link_C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 7, label: 'b_link_C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 8, label: 'b_link_C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 9, label: 'b_link_C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 10, label: 'b_link_C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 2, to: 5, label: 'b_link_C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 6, label: 'b_link_C+K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 7, label: 'b_link_C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 8, label: 'b_link_C+K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 9, label: 'b_link_C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 10, label: 'b_link_C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 3, to: 5, label: 'b_link_C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 6, label: 'b_link_C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 7, label: 'b_link_C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 8, label: 'b_link_C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 9, label: 'b_link_C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 10, label: 'b_link_C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 4, to: 5, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 4, to: 6, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 4, to: 7, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 4, to: 8, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 4, to: 9, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 4, to: 10, label: 'e_link_', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 5, to: 1, label: 'utility_-8', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 2, label: 'utility_-5', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 3, label: 'utility_-7', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 6, to: 1, label: 'utility_-7', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 6, to: 2, label: 'utility_-5', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 6, to: 3, label: 'utility_-3', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 7, to: 1, label: 'utility_8', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 7, to: 2, label: 'utility_7', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 7, to: 3, label: 'utility_5', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 8, to: 1, label: 'utility_-7', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 8, to: 2, label: 'utility_-5', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 8, to: 3, label: 'utility_-3', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 9, to: 1, label: 'utility_5', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 9, to: 2, label: 'utility_8', arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 9, to: 3, label: 'utility_-3', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		{from: 10, to: 1, label: 'utility_8', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		]);{from: 10, to: 2, label: 'utility_7', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
-		]);{from: 10, to: 3, label: 'utility_5', arrows: { to: { enabled: true, type: 'arrow'}}},
-		
+		{from: 1, to: 14, label: 'C+D+K+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 15, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 6, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 7, label: 'C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 8, label: 'C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 9, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 10, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 14, label: 'C+D+K+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 15, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 16, label: 'C+K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 17, label: 'C-K+D+', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 18, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 19, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 15, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 6, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 7, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 8, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 9, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 10, label: 'C-K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 15, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 6, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 7, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 8, label: 'C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 9, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 10, label: 'C+K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 15, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 6, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 7, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 8, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 9, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 4, to: 10, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 11, label: '-8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 2, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 11, label: '-8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 12, label: '-5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 13, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 11, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 2, label: '-5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 11, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 2, label: '-3', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 11, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 2, label: '-5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 3, label: '10', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 11, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 2, label: '3', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 11, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 2, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 3, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 12, to: 15, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 12, to: 16, label: 'C+K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 12, to: 17, label: 'C+K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 12, to: 18, label: 'C+K+D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 12, to: 19, label: 'C+K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 13, to: 15, label: 'C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 13, to: 16, label: 'C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 13, to: 17, label: 'C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 13, to: 18, label: 'C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 13, to: 19, label: 'C-K-D-', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 14, to: 15, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 14, to: 16, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 14, to: 17, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 14, to: 18, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 14, to: 19, label: '', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 16, to: 11, label: '-7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 16, to: 12, label: '-5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 16, to: 13, label: '-3', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 17, to: 11, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 17, to: 12, label: '7', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 17, to: 13, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 18, to: 11, label: '5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 18, to: 12, label: '8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 18, to: 13, label: '3', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 19, to: 11, label: '-8', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 19, to: 12, label: '-5', arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 19, to: 13, label: '-3', arrows: { to: { enabled: true, type: 'arrow'}}},
 		]);
 
 	return ([edges,nodes])
-
-    }
+}
 </script>
 </body>
 </html>

@@ -11,6 +11,7 @@ DATA_DIR = CUR_DIR+'/data/'
 VIS_JS_FORMAT_NODE = "{id: %d, label: '%s', color: {background: '%s'}}"
 VIS_JS_FORMAT_LINK = "{from: %d, to: %d, label: '%s', arrows: { to: { enabled: true, type: 'arrow'}}}"
 
+
 # TODO: highlight color and border can be changed too.
 # color: {
 #       border: '#2B7CE9',
@@ -75,7 +76,10 @@ BODY = '\n<script type="text/javascript">\
 		\n\t\tnodes: {\
 			\n\t\t\tshape: "circle",\
             \n\t\t\tfont: { size: 16 },\
-            \n\t\t\t}\
+            \n\t\t\t},\
+         \n\t\tedges: {\
+         \n\t\t\tlength: 2000,\
+         \n\t\t},\
 	}; \
        \n // initialize your network!\
          \n\tvar network = new vis.Network(container, data, options);\
@@ -95,12 +99,14 @@ def wrap_text(txt,width=5):
     return (txt_complete)
 
 
+# json_file = DATA_DIR+'scenarios_2_choice_2.json'
 
 def main(json_file: str = typer.Option(None, help="name of json file to use")):
 
     # define reader 
     print(json_file)
     reader = jsonlines.open(json_file, 'r')
+
 
     # get every node from the input file and store in list
     node_list = list(reader)
@@ -128,10 +134,12 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
     # create list of nodes
     # store labels
     node_labs_list = {}
-    for ind,item in enumerate(node_list):        
+    for ind,item in enumerate(node_list):                
         
         this_lab = item['node']['label']
         this_node_kind = item['node']['kind']
+
+
         try:
             this_color = NODE_COLORS[this_node_kind]
         except:
@@ -157,23 +165,24 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
     # create list of edges for each node
     # loop through each node and write out each of its links!
     for node_ind,item in enumerate(node_list):        
+
         
         this_node_lab = item['node']['label']
-        these_links = item['links'] 
-        
+        these_links = item['links']         
 
-        is_last_node = node_ind==(len(node_list)-1)
+        is_last_node = node_ind==(len(node_list)-1)      
         is_first_node = node_ind==0
 
         #decide if we will close this list or not.. 
         if(is_last_node and len(these_links)==0):
-            output_file.write('\n\t\t]);')
-        elif(is_first_node==False and len(these_links)>0):
-            output_file.write('\n\t\t')
+            output_file.write(']);\n')
+        # elif(is_first_node==False and len(these_links)>0):
+        #     output_file.write('\n\t\t')
 
         for link_ind,link in enumerate(these_links):
 
-            link_lab  = link['link']['kind']+"_"+link['link']['value']
+            # link_lab  = link['link']['kind']+"_"+link['link']['value']
+            link_lab = link['link']['value']
             from_node = node_ind+1
             to_node = node_labs_list[link['to_node']]+1
             this_line = VIS_JS_FORMAT_LINK % (from_node, to_node, link_lab)       
@@ -181,15 +190,16 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
             #add a comma only if there are more links to list
             if(link_ind<len(these_links)):
                 this_line=this_line+',\n\t\t'
-            if(is_last_node):
-                this_line=this_line+'\n\t\t]);'
+            if(is_last_node and link_ind==len(these_links)-1):
+                this_line=this_line+']);\n'
+                print('closing node list')
 
             output_file.write(this_line)
 
-    
-    output_file.write('''\n
-	return ([edges,nodes])\n
-    }''')
+    output_file.write('\n\treturn ([edges,nodes])')
+    output_file.write('''\n}''')
+
+	# return ([edges,nodes])
 
     output_file.write(CODA)
                       
