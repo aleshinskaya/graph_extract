@@ -8,8 +8,8 @@ import jsonlines
 
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
 DATA_DIR = CUR_DIR+'/data/'
-VIS_JS_FORMAT_NODE = "{id: %d, label: '%s', color: {background: '%s'}}"
-VIS_JS_FORMAT_LINK = "{from: %d, to: %d, label: '%s', arrows: { to: { enabled: true, type: 'arrow'}}}"
+VIS_JS_FORMAT_NODE = '''{id: %d, label: "%s", color: {background: '%s'}}'''
+VIS_JS_FORMAT_LINK = '''{from: %d, to: %d, label: "%s", color: {color: '%s', highlight: '%s'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}}'''
 
 
 # TODO: highlight color and border can be changed too.
@@ -23,6 +23,7 @@ VIS_JS_FORMAT_LINK = "{from: %d, to: %d, label: '%s', arrows: { to: { enabled: t
 
 
 NODE_COLORS = {'being': '#279aba', 'action_choice': '#ba2769', 'event': '#e6c440'}
+LINK_COLORS = {'1': '#b518a8', '2': '#f540e6'}
 
 HEADER = "<html>\n<head>\n<script type='text/javascript'\
 src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>\
@@ -93,13 +94,13 @@ CODA = '\n</script>\
 
 def wrap_text(txt,width=5):
     txt_split =  txt.split(' ')
-    txt_wrapped = [(' '.join(txt_split[i:i+width])) for i in range(0, len(txt_split), width)]
-    txt_complete = '\\n '.join(txt_wrapped)
+    txt_wrapped = [(" ".join(txt_split[i:i+width])) for i in range(0, len(txt_split), width)]
+    txt_complete = "\\n ".join(txt_wrapped)
     # print(txt_complete)
     return (txt_complete)
 
 
-# json_file = DATA_DIR+'scenarios_2_choice_2.json'
+
 
 def main(json_file: str = typer.Option(None, help="name of json file to use")):
 
@@ -168,7 +169,17 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
 
         
         this_node_lab = item['node']['label']
-        these_links = item['links']         
+        these_links = item['links']    
+        this_node_kind = item['node']['kind']
+
+        if(this_node_kind=='action_choice'):
+            this_color_1 = LINK_COLORS['1']
+            this_color_2 = LINK_COLORS['2']
+            
+        else:
+            this_color_1 = '#62a3a2'
+            this_color_2 = LINK_COLORS['2']
+
 
         is_last_node = node_ind==(len(node_list)-1)      
         is_first_node = node_ind==0
@@ -185,14 +196,14 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
             link_lab = link['link']['value']
             from_node = node_ind+1
             to_node = node_labs_list[link['to_node']]+1
-            this_line = VIS_JS_FORMAT_LINK % (from_node, to_node, link_lab)       
+            this_line = VIS_JS_FORMAT_LINK % (from_node, to_node, link_lab, this_color_1, this_color_2)       
 
             #add a comma only if there are more links to list
             if(link_ind<len(these_links)):
                 this_line=this_line+',\n\t\t'
             if(is_last_node and link_ind==len(these_links)-1):
                 this_line=this_line+']);\n'
-                print('closing node list')
+                # print('closing node list')
 
             output_file.write(this_line)
 
@@ -201,15 +212,29 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
 
 	# return ([edges,nodes])
 
-    output_file.write(CODA)
-                      
+    output_file.write(CODA)                      
     output_file.close()
 
 
 # # example
+    # json_file = DATA_DIR+'scenarios_2_choice_1.json'
 # # json_file = 'json_output_2.jsonl'
 # # main(json_file)
 
 
 # if __name__ == "__main__":
 #     typer.run(main)
+    
+
+
+	# // TODO: define methods that selectively hide or remove certain elements... still working on this
+	# // need to find way to select by label or find a way to tag nodes
+	# // // Get all edges
+	# // var sN = network.selectNodes([1,2])
+	# // var allEdges = network.getSelectedNodes(sN)
+	# // network.deleteSelected()
+	# // // network.
+	# // // getEdges();
+
+	# // // Log the edges to the console
+	# // console.log(allEdges);

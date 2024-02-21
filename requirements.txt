@@ -8,3 +8,6 @@ nvm install node
 
 #vis-network
 npm install vis-network
+
+#python modules
+os, sys, math, requests, json, jsonlines, pandas, numpy, re, textwrap, dotenv, typer, importlib

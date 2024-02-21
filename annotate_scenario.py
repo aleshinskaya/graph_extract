@@ -6,6 +6,7 @@ import requests
 import json, jsonlines
 import pandas as pd
 import numpy as np
+import re
 import textwrap
 from dotenv import dotenv_values
 from dotenv import load_dotenv
@@ -61,8 +62,10 @@ class Link():
 
 class Graph():
 
-  nodes = [];
-  links = [];
+  def __init__(self):        
+    self.nodes = [];
+    self.links = [];
+
 
   def add_node(self,node):
     self.nodes.append(node)
@@ -87,8 +90,8 @@ class Graph():
 
 
   def reset(self):
-    nodes = [];
-    links = [];
+    self.nodes = [];
+    self.links = [];
 
 
 
@@ -185,11 +188,39 @@ def get_event_links(this_scenario, this_act, this_event, beings):
         print('hello world')
 
 def write_jsonlines(fname,jlist):
-
-  with open(fname, 'w') as jsonl_file:
+    jsonl_file =  open(fname, 'w')  
     for dictionary in jlist:
         jsonl_file.write(json.dumps(dictionary) + '\n')
 
+    jsonl_file.close()
+
+
+def fix_I(this_list):
+   
+    #look for any strings starting with I in this list    
+    pattern = re.compile(r'^I.*')
+    
+    matches_list =  []
+    for test_string in this_list:        
+        if pattern.match(test_string):
+            matches_list.append(test_string)
+        
+    #we found some matches, now deal with them.     
+            
+     # if "I" is in the set, then remove the rest and return
+    if("I" in set(this_list)):
+        matches_list.remove("I")
+        for x in matches_list:
+            this_list.remove(x)
+    # if it isn't, replace other matches with I and return
+    else:       
+        for x in matches_list:
+            this_list.remove(x)
+
+        this_list.append("I")
+
+    return(this_list)
+           
 
 # scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
 def main(scenario_json,output_filename):
@@ -198,27 +229,31 @@ def main(scenario_json,output_filename):
     assert scenario_json['id']
     assert scenario_json['text']
     assert scenario_json['options']
+
+    print(output_filename)
+
+    g = Graph()
     
     # loop over actions 
     for act_id in scenario_json['options'].keys():     
+  
+        this_act = scenario_json['options'][act_id]
 
-        print('\n\nProcessing choice '+act_id)   
-        this_act = scenario_json['options']["1"]
-      
+        print('\n\nProcessing choice '+act_id +', '+this_act) 
         this_scenario = scenario_json['text']
 
+
         #initialize Graph
+        del(g)
         g = Graph()
+        g.reset()        
+        print(g.print_graph())
 
-        # get all beings
-        beings = get_beings(this_scenario)    
-
-        #ensure I is a being
-        if("I" in set(beings['results'])==False):
-            beings['results'].append("I")
-            #TO DO: what if something like but not exactly "I" is in there?
-            print("\n".join(beings['results']))
-
+        # get all beings, ensuring "I" is always a character 
+        beings = (get_beings(this_scenario))
+        beings_fixed =fix_I(beings['results'])
+        print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
+        
         #add each being to the graph
         for b in beings['results']:
             #create new node & add to graph               
@@ -263,25 +298,50 @@ def main(scenario_json,output_filename):
         # add links from beings to events
                 
         # dictionaries for translating into labels
-        cause = {"No": 'C-', "Yes": 'C+'}
-        know = {"No": 'K-',"Yes": 'K+'}
-        desire = {"No": 'D-', "Yes": 'D+'}
+        cause = {"No": 'C-', "Yes": 'C+',"no": 'C-', "yes": 'C+'}
+        know = {"No": 'K-',"Yes": 'K+',"no": 'K-',"yes": 'K+'}
+        desire = {"No": 'D-', "Yes": 'D+',"no": 'D-', "yes": 'D+'}
 
         for this_evt in events['results']:
 
-            links = get_being_links(this_scenario, this_act, this_evt, beings)
+            #try to get the right links, ensure correct labels 
+            success = 0
+            count = 0
+            while(success==0):        
+
+                links = get_being_links(this_scenario, this_act, this_evt, beings)
+                count = count+1
+                
+                # for now just do this for being I
+                # for being,resp in links['results'].items():
+                being = 'I'
+                resp=links['results'][being]
+                    
+                #check that resp consists of exactly three yes or no's
+                x = [y for y in resp if y in ['Yes','yes','No','no']]
+                #if this works, good, otherwise set success back to 0
+                if(len(x) == 3):
+                    success = 1
+                else:
+                    success = 0
             
+                if(count >5):
+                   print('\n\n***Failed to get all correct links, check your scenario.**\n\n')
+                
+
+            # for now, just do being I
             # for each being, add the link to the graph with the right label
-            for being,resp in links['results'].items():
+            # for being,resp in links['results'].items():
+                
 
-                this_label = cause[resp[0]] + know[resp[1]] + desire[resp[2]]
+            this_label = cause[resp[0]] + know[resp[1]] + desire[resp[2]]               
 
-                #create a new link
-                # Link(kind,value):
-                this_link = g.add_link(Link('b_link',this_label))
-                this_b_node = g.return_node(being)[0]
-                this_event_node = g.return_node(this_evt)[0]
-                this_b_node.link_link(this_link,this_event_node)
+            #create a new link
+            # Link(kind,value):
+            this_link = g.add_link(Link('b_link',this_label))
+            this_b_node = g.return_node(being)[0]
+            this_event_node = g.return_node(this_evt)[0]
+            this_b_node.link_link(this_link,this_event_node)
 
         g_print = g.print_graph()
                 
