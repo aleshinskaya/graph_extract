@@ -226,7 +226,7 @@ def fix_I(this_list):
 def main(scenario_json,output_filename):
    
    # validate the scenario json
-    assert scenario_json['id']
+    assert isinstance(scenario_json['id'],int)
     assert scenario_json['text']
     assert scenario_json['options']
 

@@ -10,7 +10,7 @@ importlib.reload(annotate_scenario)
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
 DATA_DIR = CUR_DIR+'/data/'
 
-def main(filename = "scenarios.json", scenario_id: int = 1):
+def main(filename = "scenarios.json", scenario_id: int = 0):
 
     with open(DATA_DIR+"scenarios.json", 'r') as file:
         scenarios=json.load(file)
