@@ -232,6 +232,8 @@ def main(scenario_json,output_filename):
 
     print(output_filename)
 
+
+
     g = Graph()
     
     # loop over actions 
@@ -241,6 +243,9 @@ def main(scenario_json,output_filename):
 
         print('\n\nProcessing choice '+act_id +', '+this_act) 
         this_scenario = scenario_json['text']
+
+        # create a dictionary to write out to csv later
+        scenario_dict = {'scenario': this_scenario, 'action': this_act}
 
 
         #initialize Graph
@@ -254,6 +259,10 @@ def main(scenario_json,output_filename):
         beings_fixed =fix_I(beings['results'])
         print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
         
+
+        beings_list = ",".join(beings_fixed)
+        scenario_dict["beings"]= beings_list
+
         #add each being to the graph
         for b in beings['results']:
             #create new node & add to graph               
@@ -269,6 +278,11 @@ def main(scenario_json,output_filename):
         #get all outcome events arising from the action
         events = get_events(this_scenario, this_act, beings)
         print("\n".join(events['results'])) 
+
+        event_list = ".".join(events['results'])
+        scenario_dict["events"]= event_list
+
+        impacts_list = []
 
         #add links from each action to each event outcome and score impacts
         for this_evt in events['results']:
@@ -294,7 +308,19 @@ def main(scenario_json,output_filename):
                 this_b_node = g.return_node(being)[0]
                 this_event_node = g.return_node(this_evt)[0]
                 this_event_node.link_link(this_link,this_b_node)
+            
+            for being in impacts['results']:
 
+                score = impacts['results'][being]
+                items_to_write = ",".join([this_evt,being,str(score)])
+                impacts_list.append(items_to_write)
+
+          scenario_dict["impacts"] = impacts_list
+
+          #write dict as json here for now
+          this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
+          # write_jsonlines(this_output_filename_qual,[scenario_dict])
+          
         # add links from beings to events
                 
         # dictionaries for translating into labels

@@ -10,7 +10,11 @@ importlib.reload(annotate_scenario)
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
 DATA_DIR = CUR_DIR+'/data/'
 
-def main(filename: str = 'scenarios.json"', scenario_id: int = 0):
+
+# filename = 'scenarios.json'
+# scenario_id = 0
+
+def main(filename: str = 'scenarios.json', scenario_id: int = 0):
 
     with open(DATA_DIR+filename, 'r') as file:
         scenarios=json.load(file)
@@ -33,10 +37,13 @@ def main(filename: str = 'scenarios.json"', scenario_id: int = 0):
 
     # generate output file name based on input filename
     output_filename = filename.split('.json')[0]+'_'+str(scenario_id)
-
+    
     # run the annotation process
     annotate_scenario.main(scenario_json,output_filename)
+  
+    
 
+    
 
 if __name__ == "__main__":
     typer.run(main)
