@@ -103,7 +103,8 @@ def promptGPT(prompt_message_list, gpt_temperature=0, debug=False):
         "Authorization": config['OPENAI_API_KEY']
     }
     gpt_data = {
-            "model": "gpt-3.5-turbo-1106",
+            # "model": "gpt-3.5-turbo-1106", 
+            "model": "gpt-4-turbo-preview"
             "response_format": {"type": "json_object"}, # only works on 3.5-turbo-1106, 4 and above
             "temperature": gpt_temperature,
             "messages": prompt_message_list,
@@ -139,15 +140,15 @@ def get_beings(this_scenario):
         
 def get_events(this_scenario, this_act, beings):
 
-    system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. \
-    The user will describe a scenario and how they decided to act.\
+    system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. \
+    A human named Ziv has described a scenario and how they decided to act.\
     Your task is to identify all the outcomes that will probably occur as a result \
-    of this action decision, especially any impacts on the beings involved.\
-    Phrase the outcomes about the user using the first person.\
+    of Ziv\'s action decision, especially any impacts on sentient beings involved. \   
+    Describing the outcomes referring to Ziv using their name, not pronouns. \ 
     Return a json object with key:value pair of "results": list of events.\
-    Please be diligent, complete, and succinct in your response.'
-
-    user_prompt_content = f'Here is my scenario: {this_scenario}. I decide to {this_act}. What events are likely to arise as outcomes of this decision?'
+    Please be diligent, complete, and succinct in your response."""
+    print(system_prompt_content)
+    user_prompt_content = f'Here is Ziv\'s scenario: {this_scenario}. Ziv said they decide to {this_act}. What outcomes are likely to arise a result of Ziv\'s decision?'
 
     return get_response_dict(system_prompt_content, user_prompt_content)
 
@@ -194,16 +195,27 @@ def write_jsonlines(fname,jlist):
 
     jsonl_file.close()
 
+def fix_braces(this_list):
 
-def fix_I(this_list):
-   
-    #look for any strings starting with I in this list    
-    pattern = re.compile(r'^I.*')
+  # Define the regular expression pattern to match numerical text within brackets or parentheses
+  pattern = r'[0-9\[\]\(\)]'
+  new_list = []
+  for this_string in this_list:
+    # Use re.sub() to replace matched patterns with an empty string
+    new_list.append(re.sub(pattern, '', this_string))
+  
+  return new_list
+
+
+def fix_I(this_list):   
     
     matches_list =  []
-    for test_string in this_list:        
-        if pattern.match(test_string):
-            matches_list.append(test_string)
+    for this_string in this_list:  
+        this_string_split = this_string.lower().split()
+        for this_word in this_string_split:      
+          if(this_word in ['i', 'me', 'myself']):
+            matches_list.append(this_string)        
+            break
         
     #we found some matches, now deal with them.     
             
@@ -256,7 +268,7 @@ def main(scenario_json,output_filename):
 
         # get all beings, ensuring "I" is always a character 
         beings = (get_beings(this_scenario))
-        beings_fixed =fix_I(beings['results'])
+        beings_fixed =fix_I(fix_braces(beings['results']))
         print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
         
 
@@ -315,10 +327,10 @@ def main(scenario_json,output_filename):
                 items_to_write = ",".join([this_evt,being,str(score)])
                 impacts_list.append(items_to_write)
 
-          scenario_dict["impacts"] = impacts_list
+        scenario_dict["impacts"] = impacts_list
 
           #write dict as json here for now
-          this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
+        this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
           # write_jsonlines(this_output_filename_qual,[scenario_dict])
           
         # add links from beings to events
