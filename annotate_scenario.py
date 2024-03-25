@@ -103,8 +103,8 @@ def promptGPT(prompt_message_list, gpt_temperature=0, debug=False):
         "Authorization": config['OPENAI_API_KEY']
     }
     gpt_data = {
-            # "model": "gpt-3.5-turbo-1106", 
-            "model": "gpt-4-turbo-preview"
+            "model": "gpt-3.5-turbo-1106", 
+            # "model": "gpt-4-turbo-preview",
             "response_format": {"type": "json_object"}, # only works on 3.5-turbo-1106, 4 and above
             "temperature": gpt_temperature,
             "messages": prompt_message_list,
@@ -140,13 +140,7 @@ def get_beings(this_scenario):
         
 def get_events(this_scenario, this_act, beings):
 
-    system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. \
-    A human named Ziv has described a scenario and how they decided to act.\
-    Your task is to identify all the outcomes that will probably occur as a result \
-    of Ziv\'s action decision, especially any impacts on sentient beings involved. \   
-    Describing the outcomes referring to Ziv using their name, not pronouns. \ 
-    Return a json object with key:value pair of "results": list of events.\
-    Please be diligent, complete, and succinct in your response."""
+    system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. A human named Ziv has described a scenario and how they decided to act. Your task is to identify all the outcomes that will probably occur as a result of Ziv\'s action decision, especially any impacts on sentient beings involved. Describing the outcomes referring to Ziv using their name, not pronouns. Return a json object with key:value pair of "results": list of events. Please be diligent, complete, and succinct in your response."""
     print(system_prompt_content)
     user_prompt_content = f'Here is Ziv\'s scenario: {this_scenario}. Ziv said they decide to {this_act}. What outcomes are likely to arise a result of Ziv\'s decision?'
 
@@ -233,6 +227,27 @@ def fix_I(this_list):
 
     return(this_list)
            
+def pronoun_change(text):
+   
+  #  function to turn Ziv into first person for output
+
+  # string-initial Ziv's -> My
+  pattern_1 = r'^Ziv\'s'  
+  result_1 = re.match(pattern_1,text)  
+  if(result_1):
+    new_text = re.sub(pattern_1, 'My', text)
+  else:
+     new_text = text
+
+
+  # now look for non string initial Ziv's  
+  pattern_2 = r'.+Ziv\'s'
+  result_2 = re.match(pattern_2,new_text)  
+  if(result_2):
+    new_text=new_text.replace("Ziv's", "my")
+    
+  
+   
 
 # scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
 def main(scenario_json,output_filename):
