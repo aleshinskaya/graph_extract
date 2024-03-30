@@ -109,10 +109,11 @@ def promptGPT(prompt_message_list, gpt_temperature=0, debug=False):
             "temperature": gpt_temperature,
             "messages": prompt_message_list,
     }
-    response = requests.post(gpt_url, headers=gpt_headers, json=gpt_data)
-    output = response.json()['choices'][0]['message']['content']
+    response = requests.post(gpt_url, headers=gpt_headers, json=gpt_data)    
     if(debug==True):
         output = response.json()
+    else:
+        output = response.json()['choices'][0]['message']['content']
 
     return output
 
@@ -126,8 +127,9 @@ def get_response_dict(system_prompt_content, user_prompt_content):
         "role": "user",
         "content": user_prompt_content,
     }
+    # print([system_prompt,user_prompt])
 
-    response_dict = json.loads(promptGPT([system_prompt,user_prompt],0))
+    response_dict = json.loads(promptGPT([system_prompt,user_prompt],0,False))
     return response_dict
 
 def get_beings(this_scenario):
@@ -140,9 +142,9 @@ def get_beings(this_scenario):
         
 def get_events(this_scenario, this_act, beings):
 
-    system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. A human named Ziv has described a scenario and how they decided to act. Your task is to identify all the outcomes that will probably occur as a result of Ziv\'s action decision, especially any impacts on sentient beings involved. Describing the outcomes referring to Ziv using their name, not pronouns. Return a json object with key:value pair of "results": list of events. Please be diligent, complete, and succinct in your response."""
-    print(system_prompt_content)
-    user_prompt_content = f'Here is Ziv\'s scenario: {this_scenario}. Ziv said they decide to {this_act}. What outcomes are likely to arise a result of Ziv\'s decision?'
+    system_prompt_content = f"""You are an expert at understanding human situations. A human named Ziv has described a scenario and how they decided to act. Your task is to identify all the outcomes that will probably occur as a result of Ziv's action decision, especially any impacts on sentient beings involved. Please state each outcome as the most simple, immediately occuring result, and not chains of events. Describe the outcomes referring to Ziv using their name, not pronouns. Return a json object with key:value pair of "results": list of events. Please be diligent, complete, and succinct in your response."""
+    # print(system_prompt_content)
+    user_prompt_content = f'Here is Ziv\'s scenario: {this_scenario}. Ziv decided to {this_act}. What outcomes are likely to arise a result of Ziv\'s decision?'
 
     return get_response_dict(system_prompt_content, user_prompt_content)
 
@@ -159,6 +161,16 @@ def get_impacts(this_scenario, this_act, this_event, beings):
         I decide to {this_act}, which results in this event: {this_event}. What is the impact of that event on each being?'
 
         return get_response_dict(system_prompt_content, user_prompt_content)
+
+
+def get_impacts_Ziv(this_scenario, this_act, this_event, beings):
+
+        system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a character named Ziv, an action they took, an outcome resulting from that action, and a list of characters in the scenario. Evaluate how this outcome impacts each character. Score the impact of the outcome on each character on a scale from -10 to +10, where -10 indicates substantial harm to that being and +10 indicates substantial benefit to that character. If there is no obvious impact on a character, score the impact as 0. Return a json object named "results" with a key:value pair where each key is the character from the list, and the value is the impact score.'
+
+        user_prompt_content = f'Here is the scenario: {this_scenario}. Ziv chose to {this_act}, resulting in this outcome: {this_event}. The characters are: {beings}. What is the impact of {this_event} on each character?'
+
+        return get_response_dict(system_prompt_content, user_prompt_content)
+
 
 def get_being_links(this_scenario, this_act, this_event, beings):
         system_prompt_content = f'\
@@ -179,6 +191,14 @@ def get_being_links(this_scenario, this_act, this_event, beings):
 
         return get_response_dict(system_prompt_content, user_prompt_content)
 
+
+def get_being_links_Ziv(this_scenario, this_act, this_event, this_being):
+        system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a person named Ziv, an action they took, and an outcome resulting from that action. You will also be given the name of a character. Consider how this character relates to the outcome. Answer three questions. 1) Did they cause the outcome? 2) Did they expect it would happen as a result of the action? and 3) Did they want or intend for this outcome to occur? Each question has a yes or no answer. Return a json object called "results" containing a key with the name of the character and a value with the ordered list of answers to the three questions."""
+
+        user_prompt_content = f"Here is the scenario: {this_scenario}. Ziv chose to {this_act}, resulting in this outcome: {this_event}. For the {this_being}, please answer the three questions relating to the outcome."         
+
+        return get_response_dict(system_prompt_content, user_prompt_content)
+
 def get_event_links(this_scenario, this_act, this_event, beings):
         print('hello world')
 
@@ -189,6 +209,13 @@ def write_jsonlines(fname,jlist):
 
     jsonl_file.close()
 
+
+def write_json(fname,dictionary):
+    json_file =  open(fname, 'w')     
+    json_file.write(json.dumps(dictionary))
+    json_file.close()
+
+
 def fix_braces(this_list):
 
   # Define the regular expression pattern to match numerical text within brackets or parentheses
@@ -197,6 +224,9 @@ def fix_braces(this_list):
   for this_string in this_list:
     # Use re.sub() to replace matched patterns with an empty string
     new_list.append(re.sub(pattern, '', this_string))
+
+  # also remove trailing whitespace
+  new_list = [this_string.rstrip() for this_string in new_list]
   
   return new_list
 
@@ -227,26 +257,24 @@ def fix_I(this_list):
 
     return(this_list)
            
-def pronoun_change(text):
+def convert_Ziv_I(old_sentence):
    
   #  function to turn Ziv into first person for output
+  #  use a call to GPT to do this. 
+  this_resp=get_response_dict("You are an expert in English grammar. Convert the following text so that it is written in the first-person instead of about Ziv, replacing each instance of Ziv with the correct first-person pronoun. Return a json called 'converted sentence' with the converted sentence only.", old_sentence)
+  this_key=list(this_resp.keys())
+  new_sentence = this_resp[this_key[0]]
 
-  # string-initial Ziv's -> My
-  pattern_1 = r'^Ziv\'s'  
-  result_1 = re.match(pattern_1,text)  
-  if(result_1):
-    new_text = re.sub(pattern_1, 'My', text)
-  else:
-     new_text = text
+  return(new_sentence)
 
-
-  # now look for non string initial Ziv's  
-  pattern_2 = r'.+Ziv\'s'
-  result_2 = re.match(pattern_2,new_text)  
-  if(result_2):
-    new_text=new_text.replace("Ziv's", "my")
+def convert_I_Ziv(old_sentence):
     
-  
+    this_resp=get_response_dict("You are an expert in English grammar. Convert the following text so that instead of being written in the first person, it is written about a character named Ziv. Replace every instance of the first person pronoun with either the name Ziv or the pronouns they, their, them, etc. Return a json called 'converted text' with the converted text only.", old_sentence)
+
+    this_key=list(this_resp.keys())
+    new_sentence = this_resp[this_key[0]]
+
+    return(new_sentence)
    
 
 # scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
@@ -259,8 +287,6 @@ def main(scenario_json,output_filename):
 
     print(output_filename)
 
-
-
     g = Graph()
     
     # loop over actions 
@@ -268,13 +294,16 @@ def main(scenario_json,output_filename):
   
         this_act = scenario_json['options'][act_id]
 
+        this_act_Ziv = convert_I_Ziv(this_act)
+
         print('\n\nProcessing choice '+act_id +', '+this_act) 
+
         this_scenario = scenario_json['text']
+        this_scenario_Ziv = convert_I_Ziv(this_scenario)
 
         # create a dictionary to write out to csv later
-        scenario_dict = {'scenario': this_scenario, 'action': this_act}
-
-
+        scenario_dict = {'scenario': this_scenario, 'scenario_idx': scenario_json['id'],
+                         'choice': this_act}
         #initialize Graph
         del(g)
         g = Graph()
@@ -283,15 +312,16 @@ def main(scenario_json,output_filename):
 
         # get all beings, ensuring "I" is always a character 
         beings = (get_beings(this_scenario))
-        beings_fixed =fix_I(fix_braces(beings['results']))
+        beings_fixed =fix_I(fix_braces(beings['results']))        
+        beings_fixed_Ziv = ['Ziv' if x=="I" else x for x in beings_fixed]
+
         print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
-        
 
         beings_list = ",".join(beings_fixed)
-        scenario_dict["beings"]= beings_list
+        scenario_dict["entities"]= beings_list
 
         #add each being to the graph
-        for b in beings['results']:
+        for b in beings_fixed:
             #create new node & add to graph               
             g.add_node(Node(b,'being'))
 
@@ -304,49 +334,53 @@ def main(scenario_json,output_filename):
 
         #get all outcome events arising from the action
         events = get_events(this_scenario, this_act, beings)
-        print("\n".join(events['results'])) 
+        events_Ziv= events['results']
+        # replace Ziv with first person pronoun.        
+        events_I = [convert_Ziv_I(x) if x.find("Ziv")>-1 else x for x in events_Ziv]   
 
-        event_list = ".".join(events['results'])
-        scenario_dict["events"]= event_list
-
-        impacts_list = []
+        # print("\n".join(events_I))         
+        scenario_dict["outcomes"]= events_I
 
         #add links from each action to each event outcome and score impacts
-        for this_evt in events['results']:
+        # we will do this maintaining the Ziv pronouns
+
+        impacts_list = []
+        for this_evt_Ziv, this_evt_I in zip(events_Ziv,events_I):
 
             #create a node for this "event"
-            this_out_node = g.add_node(Node(this_evt,'event'))
+            this_out_node = g.add_node(Node(this_evt_I,'event'))
 
             #create a link between act and event
             # Link(kind,value):
             this_link = g.add_link(Link('e_link',''))
-
             act_node.link_link(this_link,this_out_node)
 
-            impacts = get_impacts(this_scenario, this_act, this_evt, beings)
-            # print(impacts['results'])
+            # score impacts using Ziv pronouns
+            impacts = get_impacts_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_fixed_Ziv) 
 
-            for being in impacts['results']:
+            impacts_Ziv = impacts['results'] 
+            impacts_Ziv={key.replace("Ziv's", "").lstrip():value for key, value in impacts_Ziv.items()}
+            impacts_I = {"I" if key == "Ziv" else key:value for key, value in impacts_Ziv.items()}
 
-                score = impacts['results'][being]
-
+            for being,score in impacts_I.items():
+                # print(being)
+                # print(score)
                 # Link(kind,value):
                 this_link = g.add_link(Link('utility',str(score)))
                 this_b_node = g.return_node(being)[0]
-                this_event_node = g.return_node(this_evt)[0]
+                this_event_node = g.return_node(this_evt_I)[0]
                 this_event_node.link_link(this_link,this_b_node)
             
-            for being in impacts['results']:
+            for being,score in impacts_I.items():
 
-                score = impacts['results'][being]
-                items_to_write = ",".join([this_evt,being,str(score)])
+                items_to_write = ",".join([this_evt_I,being,str(score)])
                 impacts_list.append(items_to_write)
 
-        scenario_dict["impacts"] = impacts_list
+        # scenario_dict["impacts"] = impacts_list
 
           #write dict as json here for now
         this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
-          # write_jsonlines(this_output_filename_qual,[scenario_dict])
+        write_json(this_output_filename_qual,[scenario_dict])
           
         # add links from beings to events
                 
@@ -355,20 +389,24 @@ def main(scenario_json,output_filename):
         know = {"No": 'K-',"Yes": 'K+',"no": 'K-',"yes": 'K+'}
         desire = {"No": 'D-', "Yes": 'D+',"no": 'D-', "yes": 'D+'}
 
-        for this_evt in events['results']:
+        for this_evt,this_evt_I in zip(events_Ziv,events_I):
+
+            # for this_being in beings_fixed_Ziv:
+            # for now just for main character
+            this_being = 'Ziv'
+            this_being_I = 'I'
 
             #try to get the right links, ensure correct labels 
             success = 0
             count = 0
             while(success==0):        
 
-                links = get_being_links(this_scenario, this_act, this_evt, beings)
+                links = get_being_links_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt, this_being)
                 count = count+1
-                
-                # for now just do this for being I
-                # for being,resp in links['results'].items():
-                being = 'I'
-                resp=links['results'][being]
+              
+
+
+                resp=links['results'][this_being]
                     
                 #check that resp consists of exactly three yes or no's
                 x = [y for y in resp if y in ['Yes','yes','No','no']]
@@ -379,21 +417,20 @@ def main(scenario_json,output_filename):
                     success = 0
             
                 if(count >5):
-                   print('\n\n***Failed to get all correct links, check your scenario.**\n\n')
+                    print('\n\n***Failed to get all correct links, check your scenario.**\n\n')
                 
 
             # for now, just do being I
             # for each being, add the link to the graph with the right label
-            # for being,resp in links['results'].items():
-                
+            # for being,resp in links['results'].items():                
 
             this_label = cause[resp[0]] + know[resp[1]] + desire[resp[2]]               
 
             #create a new link
             # Link(kind,value):
             this_link = g.add_link(Link('b_link',this_label))
-            this_b_node = g.return_node(being)[0]
-            this_event_node = g.return_node(this_evt)[0]
+            this_b_node = g.return_node(this_being_I)[0]
+            this_event_node = g.return_node(this_evt_I)[0]
             this_b_node.link_link(this_link,this_event_node)
 
         g_print = g.print_graph()
