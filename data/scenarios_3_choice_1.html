@@ -3,8 +3,8 @@
 <script type='text/javascript'src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>    
 <style type='text/css'>      
  #mynetwork {        
-		width: 1320px;         
-		height: 1320px;         
+		width: 1200px;         
+		height: 1200px;         
 		border: 1px solid lightgray;       
 	 }   
 	 </style>
@@ -62,54 +62,47 @@ function return_vis_dataset() {
 	var nodes = new vis.DataSet([ 
 		{id: 1, label: "girlfriend", color: {background: '#279aba'}},
 		{id: 2, label: "I", color: {background: '#279aba'}},
-		{id: 3, label: "older man", color: {background: '#279aba'}},
+		{id: 3, label: "other guy", color: {background: '#279aba'}},
 		{id: 4, label: "police", color: {background: '#279aba'}},
 		{id: 5, label: "tell the cops what I\n really saw and contradict my\n girlfriend", color: {background: '#ba2769'}},
-		{id: 6, label: "Your girlfriend may feel betrayed\n and hurt by your decision\n to contradict her story to\n the police.", color: {background: '#e6c440'}},
-		{id: 7, label: "The relationship between you and\n your girlfriend may become strained\n or damaged due to the\n lack of support and trust.", color: {background: '#e6c440'}},
-		{id: 8, label: "The police may become suspicious\n of conflicting testimonies and may\n investigate further to determine the\n truth of the situation.", color: {background: '#e6c440'}},
-		{id: 9, label: "The other driver may become\n defensive or aggressive if he\n feels that he is being\n falsely accused of making derogatory\n remarks or causing the accident\n intentionally.", color: {background: '#e6c440'}},
-		{id: 10, label: "There may be legal consequences\n for providing conflicting statements to\n the police, such as being\n charged with making false statements\n or obstructing justice.", color: {background: '#e6c440'}},
-		{id: 11, label: "The overall situation may escalate,\n leading to increased tension and\n conflict between all parties involved.", color: {background: '#e6c440'}}
+		{id: 6, label: "My girlfriend may feel betrayed\n and hurt by my decision\n to contradict her account of\n the incident", color: {background: '#e6c440'}},
+		{id: 7, label: "There may be tension and\n conflict between us and my\n girlfriend due to the contradiction\n in our statements to the\n police", color: {background: '#e6c440'}},
+		{id: 8, label: "The police may become suspicious\n of the conflicting statements and\n may investigate further to determine\n the truth", color: {background: '#e6c440'}},
+		{id: 9, label: "The other driver may deny\n making any derogatory remarks, leading\n to a he-said-she-said situation", color: {background: '#e6c440'}},
+		{id: 10, label: "The relationship between me and\n my girlfriend may be strained\n as a result of the\n differing statements given to the\n police", color: {background: '#e6c440'}}
 		]);
 	var edges = new vis.DataSet([ 
-		{from: 2, to: 5, label: "C+D+K+", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 6, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 7, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 8, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 9, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 10, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 2, to: 11, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 6, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 7, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 8, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 9, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 10, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 5, to: 11, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 6, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 6, to: 2, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 6, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 6, to: 4, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 7, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 7, to: 2, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 7, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 7, to: 4, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 8, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 8, to: 2, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 8, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 8, to: 4, label: "5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 9, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 9, to: 2, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 9, to: 3, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 9, to: 4, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 10, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 10, to: 2, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 10, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 10, to: 4, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 11, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 11, to: 2, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 11, to: 3, label: "-9", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 11, to: 4, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 16 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 5, label: "C+D+K+", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 6, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 7, label: "C-K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 8, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 9, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 2, to: 10, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 6, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 7, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 8, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 9, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 5, to: 10, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 2, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 6, to: 4, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 1, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 2, label: "-7", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 7, to: 4, label: "-3", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 1, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 2, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 8, to: 4, label: "-7", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 1, label: "-10", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 2, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 9, to: 4, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 1, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 2, label: "-7", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 3, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 10, to: 4, label: "-3", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		]);
 
 	return ([edges,nodes])
