@@ -163,14 +163,35 @@ def get_impacts(this_scenario, this_act, this_event, beings):
         return get_response_dict(system_prompt_content, user_prompt_content)
 
 
-def get_impacts_Ziv(this_scenario, this_act, this_event, beings):
+def get_impacts_Ziv(this_scenario, this_act, this_event, this_being):
 
-        system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a character named Ziv, an action they took, an outcome resulting from that action, and a list of characters in the scenario. Evaluate how this outcome impacts each character. Score the impact of the outcome on each character on a scale from -10 to +10, where -10 indicates substantial harm to that being and +10 indicates substantial benefit to that character. If there is no obvious impact on a character, score the impact as 0. Return a json object named "results" with a key:value pair where each key is the character from the list, and the value is the impact score.'
+        system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will be given a scenario and asked to evaluate how strongly an event will impact the character "{this_being}". Rate the direct impact on this character using a scale from -10 to +10, where a rating of -10 indicates that the outcome will directly cause the character substantial harm, while a rating of +10 indicates that it will directly cause the character substantial benefit. If the outcome is not likely to affect the characte very much, return a rating of 0. Return a json object called "score" with your rating.'
 
-        user_prompt_content = f'Here is the scenario: {this_scenario}. Ziv chose to {this_act}, resulting in this outcome: {this_event}. The characters are: {beings}. What is the impact of {this_event} on each character?'
+        user_prompt_content = f'Here is the scenario: {this_scenario} {this_act} Consider the outcome that {this_event}. How does this outcome impact the character {this_being}?'
 
+        # print(system_prompt_content, user_prompt_content)
         return get_response_dict(system_prompt_content, user_prompt_content)
 
+
+
+def get_impacts_Ziv_multi(this_scenario, this_act, this_event, these_beings):
+
+        system_prompt_content = f"You are a helpful assistant who is an expert at understanding human situations. The following scenario is context for the user's question. {this_scenario} {this_act}  End of scenario. Suppose this leads to the outcome that {convert_lower(this_event)} Please rate how this specific outcome, on its own without considering any further consequences, is likely to directly and immediately impact each character listed by the user. Use a scale from -10 to +10, where -10 indicates that the outcome will immediately and directly cause the character substantial harm, and +10 indicates that it will immediately and directly cause the character substantial benefit. If you are not sure that the outcome will immediately and directly affect the character, return a rating of 0 or close to 0. Return a json object called 'results' with a key:value pair for being: rating."        
+        
+        user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
+
+        print(system_prompt_content, user_prompt_content)
+        return get_response_dict(system_prompt_content, user_prompt_content)
+
+
+def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings):
+
+        system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will be given the description of an event and asked to evaluate how this event on its own (without considering any further consequences) is likely to impact the listed characters provided by the user. Rate the direct impact on each character using a scale from -10 to +10, where a rating of -10 indicates that the outcome will directly cause the character substantial harm, while a rating of +10 indicates that it will directly cause the character substantial benefit. Please evaluate only the immediate, direct impact of the event on its own, without considering any further consequences or outcomes downstream. If you are not sure that the outcome will immediately and directly affect the character very much, return a rating of 0 or close to 0. Return a json object called "results" with a key:value pair for being: rating.'
+
+        user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
+
+        print(system_prompt_content, user_prompt_content)
+        return get_response_dict(system_prompt_content, user_prompt_content)
 
 def get_being_links(this_scenario, this_act, this_event, beings):
         system_prompt_content = f'\
@@ -261,7 +282,7 @@ def convert_Ziv_I(old_sentence):
    
   #  function to turn Ziv into first person for output
   #  use a call to GPT to do this. 
-  this_resp=get_response_dict("You are an expert in English grammar. Convert the following text so that it is written in the first-person instead of about Ziv, replacing each instance of Ziv with the correct first-person pronoun. Return a json called 'converted sentence' with the converted sentence only.", old_sentence)
+  this_resp=get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written in the first person perspective instead of in the third person about Ziv, replacing each reference to Ziv by name or pronoun with the correct first-person pronoun (I, me, or my). Return a json called 'converted sentence' with the converted text only.", old_sentence)
   this_key=list(this_resp.keys())
   new_sentence = this_resp[this_key[0]]
 
@@ -269,13 +290,20 @@ def convert_Ziv_I(old_sentence):
 
 def convert_I_Ziv(old_sentence):
     
-    this_resp=get_response_dict("You are an expert in English grammar. Convert the following text so that instead of being written in the first person, it is written about a character named Ziv. Replace every instance of the first person pronoun with either the name Ziv or the pronouns they, their, them, etc. Return a json called 'converted text' with the converted text only.", old_sentence)
+    this_resp=get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written from the perspective of a character name Ziv in third person instead of being written in the first person. Replace every instance of the first person pronoun (I, me, my, etc) with either the name Ziv or the pronouns they, their, them, etc. Return a json called 'converted text' with the converted text only.", old_sentence)
 
     this_key=list(this_resp.keys())
     new_sentence = this_resp[this_key[0]]
 
     return(new_sentence)
    
+def convert_lower(sentence):
+    # convert to lower case except instances of Ziv
+    new_s = sentence.lower()
+    new_s = new_s.replace("ziv","Ziv")
+    new_s = new_s.replace("ziv's","Ziv's")
+
+    return new_s
 
 # scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
 def main(scenario_json,output_filename):
@@ -294,7 +322,9 @@ def main(scenario_json,output_filename):
   
         this_act = scenario_json['options'][act_id]
 
-        this_act_Ziv = convert_I_Ziv(this_act)
+        this_act_I = "I " + this_act
+
+        this_act_Ziv = convert_I_Ziv(this_act_I)
 
         print('\n\nProcessing choice '+act_id +', '+this_act) 
 
@@ -308,7 +338,7 @@ def main(scenario_json,output_filename):
         del(g)
         g = Graph()
         g.reset()        
-        print(g.print_graph())
+        # print(g.print_graph())
 
         # get all beings, ensuring "I" is always a character 
         beings = (get_beings(this_scenario))
@@ -355,12 +385,23 @@ def main(scenario_json,output_filename):
             this_link = g.add_link(Link('e_link',''))
             act_node.link_link(this_link,this_out_node)
 
-            # score impacts using Ziv pronouns
-            impacts = get_impacts_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_fixed_Ziv) 
-
-            impacts_Ziv = impacts['results'] 
-            impacts_Ziv={key.replace("Ziv's", "").lstrip():value for key, value in impacts_Ziv.items()}
-            impacts_I = {"I" if key == "Ziv" else key:value for key, value in impacts_Ziv.items()}
+            # score impacts using Ziv pronouns, for each being in turn
+            # impacts_Ziv = {}
+            # for this_being in beings_fixed_Ziv:
+            #   impacts_d = {}
+            #   this_impact = get_impacts_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, this_being) 
+            #   # impacts_d['being'] = this_being
+            #   # impacts_d['score'] = this_impact['score']
+            #   # impacts_Ziv.append(impacts_d)
+            #   impacts_Ziv[this_being] = this_impact['score']
+            
+            beings_string = ', '.join(beings_fixed_Ziv)
+            impacts_Ziv = get_impacts_Ziv_multi(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
+            
+            
+            impacts_Ziv = impacts_Ziv['results']
+            impacts_Ziv_stripped={key.replace("Ziv's", "").lstrip():value for key, value in impacts_Ziv.items()}
+            impacts_I = {"I" if key == "Ziv" else key:value for key, value in impacts_Ziv_stripped.items()}
 
             for being,score in impacts_I.items():
                 # print(being)
