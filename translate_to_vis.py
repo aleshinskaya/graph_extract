@@ -22,7 +22,7 @@ VIS_JS_FORMAT_LINK = '''{from: %d, to: %d, label: "%s", color: {color: '%s', hig
 #       },
 
 
-NODE_COLORS = {'being': '#279aba', 'action_choice': '#ba2769', 'event': '#e6c440'}
+NODE_COLORS = {'being': '#279aba', 'action_choice': '#ba2769', 'event': '#e6c440','value': '#8e7db5'}
 LINK_COLORS = {'1': '#b518a8', '2': '#f540e6'}
 
 HEADER = "<html>\n<head>\n<script type='text/javascript'\
@@ -100,14 +100,13 @@ def wrap_text(txt,width=5):
     return (txt_complete)
 
 
-
+# json_file = DATA_DIR+'scenarios_0_choice_1.json'
 
 def main(json_file: str = typer.Option(None, help="name of json file to use")):
 
     # define reader 
     print(json_file)
     reader = jsonlines.open(json_file, 'r')
-
 
     # get every node from the input file and store in list
     node_list = list(reader)
@@ -117,8 +116,6 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
 
     width = n_nodes * 120
     height = n_nodes * 120
-
-
 
     # define output file
     output_file = open(json_file.split('.json')[0]+'.html','w')    
@@ -131,15 +128,15 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
     output_file.write("""function return_vis_dataset() {\n\tvar nodes = new vis.DataSet([ \n\t\t""")
     
 
-    # iterate through nodes and write them to node datastructure in js file
-    # create list of nodes
-    # store labels
+    # iterate through nodes and write them to node datastructure in js file    
+    
+    # create list of nodes from node list
     node_labs_list = {}
+
     for ind,item in enumerate(node_list):                
         
         this_lab = item['node']['label']
         this_node_kind = item['node']['kind']
-
 
         try:
             this_color = NODE_COLORS[this_node_kind]
@@ -148,8 +145,9 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
 
         this_lab_wrapped = wrap_text(this_lab)
         this_line = VIS_JS_FORMAT_NODE % (ind+1, this_lab_wrapped,this_color)
-        # print(this_line)
-        node_labs_list[this_lab ] = ind
+       
+        node_labs_list[this_lab] = ind
+
         if(ind<(len(node_list)-1)):
             this_line=this_line+',\n\t\t'
         else:
@@ -157,12 +155,10 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
        
         output_file.write(this_line)
     
+    
     output_file.write('\n\tvar edges = new vis.DataSet([ \n\t\t')
 
     
-    # color: { border: '#280a2b',  background: '#9b32a8'}, font: {color: '#f7f0f7',
-    #   size: 14, face: 'arial'}
-
     # create list of edges for each node
     # loop through each node and write out each of its links!
     for node_ind,item in enumerate(node_list):        
@@ -210,21 +206,9 @@ def main(json_file: str = typer.Option(None, help="name of json file to use")):
     output_file.write('\n\treturn ([edges,nodes])')
     output_file.write('''\n}''')
 
-	# return ([edges,nodes])
-
     output_file.write(CODA)                      
     output_file.close()
 
-
-# # example
-    # json_file = DATA_DIR+'scenarios_2_choice_1.json'
-# # json_file = 'json_output_2.jsonl'
-# # main(json_file)
-
-
-# if __name__ == "__main__":
-#     typer.run(main)
-    
 
 
 	# // TODO: define methods that selectively hide or remove certain elements... still working on this
