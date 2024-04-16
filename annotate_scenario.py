@@ -11,9 +11,6 @@ import textwrap
 from dotenv import dotenv_values
 from dotenv import load_dotenv
 import typer
-import importlib
-import translate_to_vis
-importlib.reload(translate_to_vis)
 
 # set some environment and global variables
 load_dotenv() 
@@ -103,8 +100,8 @@ def promptGPT(prompt_message_list, gpt_temperature=0, debug=False):
         "Authorization": config['OPENAI_API_KEY']
     }
     gpt_data = {
-            "model": "gpt-3.5-turbo-1106", 
-            # "model": "gpt-4-turbo-preview",
+            # "model": "gpt-3.5-turbo-1106", 
+            "model": "gpt-4-turbo-preview",
             "response_format": {"type": "json_object"}, # only works on 3.5-turbo-1106, 4 and above
             "temperature": gpt_temperature,
             "messages": prompt_message_list,
@@ -162,7 +159,6 @@ def get_impacts(this_scenario, this_act, this_event, beings):
 
         return get_response_dict(system_prompt_content, user_prompt_content)
 
-
 def get_impacts_Ziv(this_scenario, this_act, this_event, this_being):
 
         system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will be given a scenario and asked to evaluate how strongly an event will impact the character "{this_being}". Rate the direct impact on this character using a scale from -10 to +10, where a rating of -10 indicates that the outcome will directly cause the character substantial harm, while a rating of +10 indicates that it will directly cause the character substantial benefit. If the outcome is not likely to affect the characte very much, return a rating of 0. Return a json object called "score" with your rating.'
@@ -173,14 +169,13 @@ def get_impacts_Ziv(this_scenario, this_act, this_event, this_being):
         return get_response_dict(system_prompt_content, user_prompt_content)
 
 
-
 def get_impacts_Ziv_multi(this_scenario, this_act, this_event, these_beings):
 
         system_prompt_content = f"You are a helpful assistant who is an expert at understanding human situations. The following scenario is context for the user's question. {this_scenario} {this_act}  End of scenario. Suppose this leads to the outcome that {convert_lower(this_event)} Please rate how this specific outcome, on its own without considering any further consequences, is likely to directly and immediately impact each character listed by the user. Use a scale from -10 to +10, where -10 indicates that the outcome will immediately and directly cause the character substantial harm, and +10 indicates that it will immediately and directly cause the character substantial benefit. If you are not sure that the outcome will immediately and directly affect the character, return a rating of 0 or close to 0. Return a json object called 'results' with a key:value pair for being: rating."        
         
         user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
 
-        print(system_prompt_content, user_prompt_content)
+        # print(system_prompt_content, user_prompt_content)
         return get_response_dict(system_prompt_content, user_prompt_content)
 
 
@@ -190,7 +185,7 @@ def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings
 
         user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
 
-        print(system_prompt_content, user_prompt_content)
+        # print(system_prompt_content, user_prompt_content)
         return get_response_dict(system_prompt_content, user_prompt_content)
 
 def get_being_links(this_scenario, this_act, this_event, beings):
@@ -203,18 +198,20 @@ def get_being_links(this_scenario, this_act, this_event, beings):
         the scenario. \
         For each being, (1) did they cause the event, (2) were they aware of the event, \
         (3), did they want or intend the event to occur? Each question has a yes or no answer.\
-        \
-        Return a json object with key:value pair of "results": list containing, for each being, \
-        a key:value pair of being: answer, where answer is an ordered list of answers to the 3 questions.'
+        Causality means that the event would not have happened if the being did not act. \
+        Return a json object with entry "results", containing the exact name of each being as provided as keys, \
+        and your answer as the value, where answer is an ordered list of answers to the 3 questions.'
 
         user_prompt_content = f'Here is my scenario: {this_scenario}. It involves these beings: {beings}. \
         I decide to {this_act}, which results in this event: {this_event}. For each being, please answer the three questions relating to the event.'
+
+        print(system_prompt_content, user_prompt_content)
 
         return get_response_dict(system_prompt_content, user_prompt_content)
 
 
 def get_being_links_Ziv(this_scenario, this_act, this_event, this_being):
-        system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a person named Ziv, an action they took, and an outcome resulting from that action. You will also be given the name of a character. Consider how this character relates to the outcome. Answer three questions. 1) Did they cause the outcome? 2) Did they expect it would happen as a result of the action? and 3) Did they want or intend for this outcome to occur? Each question has a yes or no answer. Return a json object called "results" containing a key with the name of the character and a value with the ordered list of answers to the three questions."""
+        system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a person named Ziv, an action they took, and an outcome resulting from that action. You will also be given the name of a character. Consider how this character relates to the outcome. Answer three questions. 1) Did they cause the outcome, meaning, it would not occur if they had not acted? 2) Did they expect it would happen as a result of the action? and 3) Did they want or intend for this outcome to occur? Each question has a yes or no answer. Return a json object with an entry named "results" containing a key with the name of the character and a value with the ordered list of answers to the three questions."""
 
         user_prompt_content = f"Here is the scenario: {this_scenario}. Ziv chose to {this_act}, resulting in this outcome: {this_event}. For the {this_being}, please answer the three questions relating to the outcome."         
 
@@ -240,7 +237,8 @@ def write_json(fname,dictionary):
 def fix_braces(this_list):
 
   # Define the regular expression pattern to match numerical text within brackets or parentheses
-  pattern = r'[0-9\[\]\(\)]'
+  # pattern = r'[0-9\[\]\(\)]'
+  pattern = r'\((.*?)\)'
   new_list = []
   for this_string in this_list:
     # Use re.sub() to replace matched patterns with an empty string
@@ -305,8 +303,33 @@ def convert_lower(sentence):
 
     return new_s
 
+def get_value_positive(this_scenario, this_act):
+
+    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take. Your task is to identify the values and virtues that the user exhibits by taking this action.  Give each of these values a score from 0 to 10, where 10 indicates that this value is considered incredibly important to people on avarege, whereas 0 indicates this value is generally unimportant to people on average. Return a json object called 'values' with the values and their scores."""
+
+    # user_prompt_content = f"Here is my scenario. {this_scenario} My action is to {this_act} List the virtues and values of this action and a score for how important each of them might be. "    
+    
+    user_prompt_content = f"My action is to {this_act} List the virtues and values of this action and a score for how important each of them might be. "     
+
+    # print(system_prompt_content, user_prompt_content)
+
+    return get_response_dict(system_prompt_content, user_prompt_content)
+
+def get_value_negative(this_scenario, this_act):
+
+    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take. Your task is to identify the anti-values and vices that the user exhibits by taking this action. Give each of these values a score from 0 to -10, where -10 indicates that this anti-value is considered incredibly important to people on avarege, whereas 0 indicates this anti-value is generally unimportant to people on average. Return a json object called 'anti-values' with the values and their scores."""
+
+        # user_prompt_content = f"Here is my scenario. {this_scenario} My action is to {this_act} List the virtues and values of this action and a score for how important each of them might be. "    
+        
+    user_prompt_content = f"My action is to {this_act} List the anti-values of this action and a score for how important each of them might be. "           
+
+    # print(system_prompt_content, user_prompt_content)
+
+    return get_response_dict(system_prompt_content, user_prompt_content)
+
+
 # scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
-def main(scenario_json,output_filename):
+def main(scenario_json,output_filename,act_id):
    
    # validate the scenario json
     assert isinstance(scenario_json['id'],int)
@@ -316,176 +339,193 @@ def main(scenario_json,output_filename):
     print(output_filename)
 
     g = Graph()
-    
-    # loop over actions 
-    for act_id in scenario_json['options'].keys():     
-  
-        this_act = scenario_json['options'][act_id]
 
-        this_act_I = "I " + this_act
+    this_act = scenario_json['options'][act_id]
 
-        this_act_Ziv = convert_I_Ziv(this_act_I)
+    this_act_I = "I " + this_act
 
-        print('\n\nProcessing choice '+act_id +', '+this_act) 
+    this_act_Ziv = convert_I_Ziv(this_act_I)
 
-        this_scenario = scenario_json['text']
-        this_scenario_Ziv = convert_I_Ziv(this_scenario)
+    print('\n\nProcessing choice '+act_id +', '+this_act) 
 
-        # create a dictionary to write out to csv later
-        scenario_dict = {'scenario': this_scenario, 'scenario_idx': scenario_json['id'],
-                         'choice': this_act}
-        #initialize Graph
-        del(g)
-        g = Graph()
-        g.reset()        
-        # print(g.print_graph())
+    this_scenario = scenario_json['text']
+    this_scenario_Ziv = convert_I_Ziv(this_scenario)
 
-        # get all beings, ensuring "I" is always a character 
-        beings = (get_beings(this_scenario))
-        beings_fixed =fix_I(fix_braces(beings['results']))        
-        beings_fixed_Ziv = ['Ziv' if x=="I" else x for x in beings_fixed]
+    # create a dictionary to write out to csv later
+    scenario_dict = {'scenario': this_scenario, 'scenario_idx': scenario_json['id'],
+                      'choice': this_act}
+    #initialize Graph
+    del(g)
+    g = Graph()
+    g.reset()        
+    # print(g.print_graph())
 
-        print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
+    # get all beings, ensuring "I" is always a character 
+    beings = (get_beings(this_scenario))
+    beings_fixed =fix_I(fix_braces(beings['results']))        
+    beings_fixed_Ziv = ['Ziv' if x=="I" else x for x in beings_fixed]
 
-        beings_list = ",".join(beings_fixed)
-        scenario_dict["entities"]= beings_list
+    print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
 
-        #add each being to the graph
-        for b in beings_fixed:
-            #create new node & add to graph               
-            g.add_node(Node(b,'being'))
+    beings_list = ",".join(beings_fixed)
+    scenario_dict["entities"]= beings_list
 
-        #create link between being "I" and action choice
-        this_being_node = g.return_node("I")[0]
-        act_node = g.add_node(Node(this_act,'action_choice'))
-        # Link(kind,value):
-        this_link = g.add_link(Link('b-link','C+D+K+'))
-        this_being_node.link_link(this_link,act_node)
+    #add each being to the graph
+    for b in beings_fixed:
+        #create new node & add to graph               
+        g.add_node(Node(b,'being'))
 
-        #get all outcome events arising from the action
-        events = get_events(this_scenario, this_act, beings)
-        events_Ziv= events['results']
-        # replace Ziv with first person pronoun.        
-        events_I = [convert_Ziv_I(x) if x.find("Ziv")>-1 else x for x in events_Ziv]   
-
-        # print("\n".join(events_I))         
-        scenario_dict["outcomes"]= events_I
-
-        #add links from each action to each event outcome and score impacts
-        # we will do this maintaining the Ziv pronouns
-
-        impacts_list = []
-        for this_evt_Ziv, this_evt_I in zip(events_Ziv,events_I):
-
-            #create a node for this "event"
-            this_out_node = g.add_node(Node(this_evt_I,'event'))
-
-            #create a link between act and event
-            # Link(kind,value):
-            this_link = g.add_link(Link('e_link',''))
-            act_node.link_link(this_link,this_out_node)
-
-            # score impacts using Ziv pronouns, for each being in turn
-            # impacts_Ziv = {}
-            # for this_being in beings_fixed_Ziv:
-            #   impacts_d = {}
-            #   this_impact = get_impacts_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, this_being) 
-            #   # impacts_d['being'] = this_being
-            #   # impacts_d['score'] = this_impact['score']
-            #   # impacts_Ziv.append(impacts_d)
-            #   impacts_Ziv[this_being] = this_impact['score']
-            
-            beings_string = ', '.join(beings_fixed_Ziv)
-            impacts_Ziv = get_impacts_Ziv_multi(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
-            
-            
-            impacts_Ziv = impacts_Ziv['results']
-            impacts_Ziv_stripped={key.replace("Ziv's", "").lstrip():value for key, value in impacts_Ziv.items()}
-            impacts_I = {"I" if key == "Ziv" else key:value for key, value in impacts_Ziv_stripped.items()}
-
-            for being,score in impacts_I.items():
-                # print(being)
-                # print(score)
-                # Link(kind,value):
-                this_link = g.add_link(Link('utility',str(score)))
-                this_b_node = g.return_node(being)[0]
-                this_event_node = g.return_node(this_evt_I)[0]
-                this_event_node.link_link(this_link,this_b_node)
-            
-            for being,score in impacts_I.items():
-
-                items_to_write = ",".join([this_evt_I,being,str(score)])
-                impacts_list.append(items_to_write)
-
-        # scenario_dict["impacts"] = impacts_list
-
-          #write dict as json here for now
-        this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
-        write_json(this_output_filename_qual,[scenario_dict])
-          
-        # add links from beings to events
-                
-        # dictionaries for translating into labels
-        cause = {"No": 'C-', "Yes": 'C+',"no": 'C-', "yes": 'C+'}
-        know = {"No": 'K-',"Yes": 'K+',"no": 'K-',"yes": 'K+'}
-        desire = {"No": 'D-', "Yes": 'D+',"no": 'D-', "yes": 'D+'}
-
-        for this_evt,this_evt_I in zip(events_Ziv,events_I):
-
-            # for this_being in beings_fixed_Ziv:
-            # for now just for main character
-            this_being = 'Ziv'
-            this_being_I = 'I'
-
-            #try to get the right links, ensure correct labels 
-            success = 0
-            count = 0
-            while(success==0):        
-
-                links = get_being_links_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt, this_being)
-                count = count+1
-              
+    #create link between being "I" and action choice
+    this_being_node = g.return_node("I")[0]
+    act_node = g.add_node(Node(this_act,'action_choice'))
+    # Link(kind,value):
+    this_link = g.add_link(Link('b-link','C+D+K+'))
+    this_being_node.link_link(this_link,act_node)
 
 
-                resp=links['results'][this_being]
-                    
-                #check that resp consists of exactly three yes or no's
-                x = [y for y in resp if y in ['Yes','yes','No','no']]
-                #if this works, good, otherwise set success back to 0
-                if(len(x) == 3):
-                    success = 1
-                else:
-                    success = 0
-            
-                if(count >5):
-                    print('\n\n***Failed to get all correct links, check your scenario.**\n\n')
-                
+    # score action virtues
+    values_positive= get_value_positive(this_scenario, this_act_I)
+    values_negative= get_value_negative(this_scenario, this_act_I)
+    values_positive.update(values_negative)
+    all_values = values_positive
+    # assert(all_values['values'])
+    # assert(all_values['anti-values'])
+    all_values_flat=all_values['values']    
+    all_values_flat.update(all_values['anti-values'])
 
-            # for now, just do being I
-            # for each being, add the link to the graph with the right label
-            # for being,resp in links['results'].items():                
-
-            this_label = cause[resp[0]] + know[resp[1]] + desire[resp[2]]               
-
-            #create a new link
-            # Link(kind,value):
-            this_link = g.add_link(Link('b_link',this_label))
-            this_b_node = g.return_node(this_being_I)[0]
-            this_event_node = g.return_node(this_evt_I)[0]
-            this_b_node.link_link(this_link,this_event_node)
-
-        g_print = g.print_graph()
-                
-        this_output_filename = output_filename+'_choice_'+str(act_id)+'.json'
-        print('\n\nWriting to file: '+this_output_filename)
-        # write out json file
-        write_jsonlines(DATA_DIR+this_output_filename,g_print)
-
-
-        # send this json file as input to graph visualization, outputs html     
-
-        translate_to_vis.main(DATA_DIR+this_output_filename)
+    # create nodes and links for these items 
+    for value in all_values_flat.items(): 
+        # print(value)       
+        this_name = value[0]
+        this_score = value[1]        
+        # create node and add it to graph
+        this_v_node = g.add_node(Node(this_name,'value'))
+        # create link with score
+        this_link = g.add_link(Link('v-link',str(this_score)))
+        # connect it to the action node                 
+        act_node.link_link(this_link,this_v_node)
         
+
+    #get all outcome events arising from the action
+    events = get_events(this_scenario, this_act, beings)
+    events_Ziv= events['results']
+    # replace Ziv with first person pronoun.        
+    events_I = [convert_Ziv_I(x) if x.find("Ziv")>-1 else x for x in events_Ziv]   
+
+    # print("\n".join(events_I))         
+    scenario_dict["outcomes"]= events_I
+
+    #add links from each action to each event outcome and score impacts
+    # we will do this maintaining the Ziv pronouns
+
+    impacts_list = []
+    for this_evt_Ziv, this_evt_I in zip(events_Ziv,events_I):
+
+        #create a node for this "event"
+        this_out_node = g.add_node(Node(this_evt_I,'event'))
+
+        #create a link between act and event
+        # Link(kind,value):
+        this_link = g.add_link(Link('e_link',''))
+        act_node.link_link(this_link,this_out_node)
+
+        # score impacts using Ziv pronouns, for each being in turn
+        # impacts_Ziv = {}
+        # for this_being in beings_fixed_Ziv:
+        #   impacts_d = {}
+        #   this_impact = get_impacts_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, this_being) 
+        #   # impacts_d['being'] = this_being
+        #   # impacts_d['score'] = this_impact['score']
+        #   # impacts_Ziv.append(impacts_d)
+        #   impacts_Ziv[this_being] = this_impact['score']
+        
+        beings_string = ', '.join(beings_fixed_Ziv)
+        impacts_Ziv = get_impacts_Ziv_multi(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
+        
+        
+        impacts_Ziv = impacts_Ziv['results']
+        impacts_Ziv_stripped={key.replace("Ziv's", "").lstrip():value for key, value in impacts_Ziv.items()}
+        impacts_I = {"I" if key == "Ziv" else key:value for key, value in impacts_Ziv_stripped.items()}
+        print(impacts_I.keys())
+        for being,score in impacts_I.items():
+            # print(being)
+            # print(score)
+            # Link(kind,value):
+            this_link = g.add_link(Link('utility',str(score)))
+            this_b_node = g.return_node(being.lstrip())[0]
+            # print(being)
+            this_event_node = g.return_node(this_evt_I)[0]
+            this_event_node.link_link(this_link,this_b_node)
+        
+        for being,score in impacts_I.items():
+
+            items_to_write = ",".join([this_evt_I,being,str(score)])
+            impacts_list.append(items_to_write)
+
+    # scenario_dict["impacts"] = impacts_list
+
+      #write dict as json here for now
+    this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
+    write_json(this_output_filename_qual,[scenario_dict])
+      
+    # add links from beings to events
+            
+    # dictionaries for translating into labels
+    cause = {"No": 'C-', "Yes": 'C+',"no": 'C-', "yes": 'C+'}
+    know = {"No": 'K-',"Yes": 'K+',"no": 'K-',"yes": 'K+'}
+    desire = {"No": 'D-', "Yes": 'D+',"no": 'D-', "yes": 'D+'}
+
+    for this_evt,this_evt_I in zip(events_Ziv,events_I):
+
+        # for this_being in beings_fixed_Ziv:
+        # for now just for main character
+        this_being = 'Ziv'
+        this_being_I = 'I'
+
+        #try to get the right links, ensure correct labels 
+        success = 0
+        count = 0
+        while(success==0):        
+
+            links = get_being_links_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt, this_being)
+            count = count+1
+            
+            resp=links['results'][this_being]
+                
+            #check that resp consists of exactly three yes or no's
+            x = [y for y in resp if y in ['Yes','yes','No','no']]
+            #if this works, good, otherwise set success back to 0
+            if(len(x) == 3):
+                success = 1
+            else:
+                success = 0
+        
+            if(count >5):
+                print('\n\n***Failed to get all correct links, check your scenario.**\n\n')
+            
+
+        # for now, just do being I
+        # for each being, add the link to the graph with the right label
+        # for being,resp in links['results'].items():                
+
+        this_label = cause[resp[0]] + know[resp[1]] + desire[resp[2]]               
+
+        #create a new link
+        # Link(kind,value):
+        this_link = g.add_link(Link('b_link',this_label))
+        this_b_node = g.return_node(this_being_I)[0]
+        this_event_node = g.return_node(this_evt_I)[0]
+        this_b_node.link_link(this_link,this_event_node)
+
+    g_print = g.print_graph()
+            
+    this_output_filename = output_filename+'_choice_'+str(act_id)+'.json'
+    print('\n\nWriting to file: '+this_output_filename)
+    # write out json file
+    write_jsonlines(DATA_DIR+this_output_filename,g_print)
+
+    return (DATA_DIR+this_output_filename)
+    
 
 
 
