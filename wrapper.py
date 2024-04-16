@@ -1,11 +1,15 @@
-
 import json
 import os
 import textwrap 
 import typer
 import annotate_scenario
+import translate_to_vis
+import value_assign
 import importlib
 importlib.reload(annotate_scenario)
+importlib.reload(translate_to_vis)
+
+
 
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
 DATA_DIR = CUR_DIR+'/data/'
@@ -37,11 +41,15 @@ def main(filename: str = 'scenarios.json', scenario_id: int = 0):
 
     # generate output file name based on input filename
     output_filename = filename.split('.json')[0]+'_'+str(scenario_id)
+
+    # loop through action choices to generate basic json, value json, and visualization
+    for act_id in scenario_json['options'].keys(): 
     
-    # run the annotation process
-    annotate_scenario.main(scenario_json,output_filename)
-  
-    
+        # run the annotation process
+        json_filename = annotate_scenario.main(scenario_json,output_filename,act_id)  
+
+        # json_filename = '/Users/anna/Dropbox/AOI/MoralLearning/CodeSets/graph_extract/data/scenarios_0_choice_1.json'
+        translate_to_vis.main(json_filename)
 
     
 
