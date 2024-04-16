@@ -1,1 +1,1 @@
-"\n{\n  \"values\": {\n    \"Responsibility\": 8,\n    \"Punctuality\": 9,\n    \"Compassion\": 3,\n    \"Self-preservation\": 7,\n    \"Professionalism\": 9\n  }\n}\n{\n  \"anti-values\": {\n    \"Lack of compassion\": 9,\n    \"Selfishness\": 8,\n    \"Irresponsibility\": 7,\n    \"Fear of consequences\": 8\n  }\n}"
+{"values": {"Responsibility": 8, "Punctuality": 9, "Compassion": 3, "Self-preservation": 7}, "anti-values": {"Lack of empathy": 9, "Selfishness": 8, "Irresponsibility": 7, "Fear of consequences": 6}}
