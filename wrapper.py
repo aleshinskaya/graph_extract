@@ -4,7 +4,6 @@ import textwrap
 import typer
 import annotate_scenario
 import translate_to_vis
-import value_assign
 import importlib
 importlib.reload(annotate_scenario)
 importlib.reload(translate_to_vis)

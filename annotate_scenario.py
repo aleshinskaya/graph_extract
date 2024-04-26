@@ -126,7 +126,7 @@ def get_response_dict(system_prompt_content, user_prompt_content):
     }
     # print([system_prompt,user_prompt])
 
-    response_dict = json.loads(promptGPT([system_prompt,user_prompt],0,False))
+    response_dict = json.loads(promptGPT([system_prompt,user_prompt],0,True))
     return response_dict
 
 def get_beings(this_scenario):
