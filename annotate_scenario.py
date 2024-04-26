@@ -353,7 +353,7 @@ def main(scenario_json,output_filename,act_id):
 
     # create a dictionary to write out to csv later
     scenario_dict = {'scenario': this_scenario, 'scenario_idx': scenario_json['id'],
-                      'choice': this_act}
+                      'choice': this_act_I}
     #initialize Graph
     del(g)
     g = Graph()
