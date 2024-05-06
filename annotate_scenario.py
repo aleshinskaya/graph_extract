@@ -11,6 +11,9 @@ import textwrap
 from dotenv import dotenv_values
 from dotenv import load_dotenv
 import typer
+import get_emb_distances
+import importlib
+importlib.reload(get_emb_distances)
 
 # set some environment and global variables
 load_dotenv() 
@@ -126,12 +129,12 @@ def get_response_dict(system_prompt_content, user_prompt_content):
     }
     # print([system_prompt,user_prompt])
 
-    response_dict = json.loads(promptGPT([system_prompt,user_prompt],0,True))
+    response_dict = json.loads(promptGPT([system_prompt,user_prompt],0,False))
     return response_dict
 
 def get_beings(this_scenario):
 
-    system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. The user will describe a scenario from a first-person perspective. Your task is to identify each sentient being involved, including the first-person character "I". Sentient beings are entities who are alive and have the capacity to experience the world, for example, a human or an animal. Return a json object with key:value pair of "results": list of beings. Please be diligent, complete, and succinct in your response.'
+    system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. The user will describe a scenario from a first-person perspective. Your task is to identify each sentient being involved, including the first-person character "I". Sentient beings are entities who are alive and have the capacity to experience the world, for example, a human or an animal. List each individual being, but do not also list groups that include all of these individual beings. Return a json object with key:value pair of "results": list of beings. Please be diligent, complete, and succinct in your response.'
 
     user_prompt_content = f'Here is my scenario: {this_scenario}.'
 
@@ -145,19 +148,19 @@ def get_events(this_scenario, this_act, beings):
 
     return get_response_dict(system_prompt_content, user_prompt_content)
 
-def get_impacts(this_scenario, this_act, this_event, beings):
+# # def get_impacts(this_scenario, this_act, this_event, beings):
 
-        system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. \
-        The user will describe a scenario from a first-person perspective. \
-        Given this scenario, evaluate how the resulting event indicated impacts each sentient being.\
-        Please score this impact on a scale from -10, indicating very harmful and negative utility for that being, \
-        to +10, indicating very beneficial and high utility for that being. If there is no obvious impact on a being, score the impact as 0. \
-        Return a json object with key:value pair of "results": list containing, for each being, a key:value pair of being: impact score.'
+#         system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. \
+#         The user will describe a scenario from a first-person perspective. \
+#         Given this scenario, evaluate how the resulting event indicated impacts each sentient being.\
+#         Please score this impact on a scale from -10, indicating very harmful and negative utility for that being, \
+#         to +10, indicating very beneficial and high utility for that being. If there is no obvious impact on a being, score the impact as 0. \
+#         Return a json object with key:value pair of "results": list containing, for each being, a key:value pair of being: impact score.'
 
-        user_prompt_content = f'Here is my scenario: {this_scenario}. It involves these beings: {beings}. \
-        I decide to {this_act}, which results in this event: {this_event}. What is the impact of that event on each being?'
+#         user_prompt_content = f'Here is my scenario: {this_scenario}. It involves these beings: {beings}. \
+#         I decide to {this_act}, which results in this event: {this_event}. What is the impact of that event on each being?'
 
-        return get_response_dict(system_prompt_content, user_prompt_content)
+#         return get_response_dict(system_prompt_content, user_prompt_content)
 
 def get_impacts_Ziv(this_scenario, this_act, this_event, this_being):
 
@@ -179,6 +182,12 @@ def get_impacts_Ziv_multi(this_scenario, this_act, this_event, these_beings):
         return get_response_dict(system_prompt_content, user_prompt_content)
 
 
+def find_semantic_match(item,list1):
+  system_prompt_content = f"You are helpful assistant. You will be given a word or phrase and a list. Find the item in the list that is most similar in meaning to the word or phrase given. Return a json called 'result' with the word/phrase as key and the item as value."
+  user_prompt_content = f"Here is my list: {list1}. Return the item in the list is most similar to the meaning of this word or phrase: {item}"
+            
+  return get_response_dict(system_prompt_content, user_prompt_content)
+
 def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings):
 
         system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will be given the description of an event and asked to evaluate how this event on its own (without considering any further consequences) is likely to impact the listed characters provided by the user. Rate the direct impact on each character using a scale from -10 to +10, where a rating of -10 indicates that the outcome will directly cause the character substantial harm, while a rating of +10 indicates that it will directly cause the character substantial benefit. Please evaluate only the immediate, direct impact of the event on its own, without considering any further consequences or outcomes downstream. If you are not sure that the outcome will immediately and directly affect the character very much, return a rating of 0 or close to 0. Return a json object called "results" with a key:value pair for being: rating.'
@@ -188,34 +197,33 @@ def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings
         # print(system_prompt_content, user_prompt_content)
         return get_response_dict(system_prompt_content, user_prompt_content)
 
-def get_being_links(this_scenario, this_act, this_event, beings):
-        system_prompt_content = f'\
-        You are a helpful assistant who is an expert at understanding human situations. \
-        The user will describe a scenario from a first-person perspective. \
-        \
-        Each scenario will include a decision, and resulting event. \
-        Please answer 3 questions regarding the several sentient beings in \
-        the scenario. \
-        For each being, (1) did they cause the event, (2) were they aware of the event, \
-        (3), did they want or intend the event to occur? Each question has a yes or no answer.\
-        Causality means that the event would not have happened if the being did not act. \
-        Return a json object with entry "results", containing the exact name of each being as provided as keys, \
-        and your answer as the value, where answer is an ordered list of answers to the 3 questions.'
+# def get_being_links(this_scenario, this_act, this_event, beings):
+        
+#         system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations and causality. The user will describe a scenario from a first-person perspective. The user decided on an action decision and an event resulted. Please answer 3 questions regarding the sentient beings in the scenario. For each being, (1) did they directly cause the event? Causality means that the event would not have happened if the being did not act. (2) Did they know the event would happen, knowing that the action was taken? (3) Did they want or desire for the event to occur? Each question has a yes or no answer. Return a json object with entry "results", containing the exact name of each being as provided as keys, and your answer as the value, where answer is an ordered list of answers to the 3 questions.'
 
-        user_prompt_content = f'Here is my scenario: {this_scenario}. It involves these beings: {beings}. \
-        I decide to {this_act}, which results in this event: {this_event}. For each being, please answer the three questions relating to the event.'
+#         user_prompt_content = f'Here is my scenario: {this_scenario}. It involves these beings: {beings}. \
+#         I decide to {this_act}, which results in this event: {this_event}. For each being, please answer the three questions relating to the event.'
 
-        print(system_prompt_content, user_prompt_content)
+#         print(system_prompt_content, user_prompt_content)
 
-        return get_response_dict(system_prompt_content, user_prompt_content)
+#         return get_response_dict(system_prompt_content, user_prompt_content)
 
 
-def get_being_links_Ziv(this_scenario, this_act, this_event, this_being):
-        system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a person named Ziv, an action they took, and an outcome resulting from that action. You will also be given the name of a character. Consider how this character relates to the outcome. Answer three questions. 1) Did they cause the outcome, meaning, it would not occur if they had not acted? 2) Did they expect it would happen as a result of the action? and 3) Did they want or intend for this outcome to occur? Each question has a yes or no answer. Return a json object with an entry named "results" containing a key with the name of the character and a value with the ordered list of answers to the three questions."""
+def get_being_links_Ziv_only(this_scenario, this_act, this_event, this_being):
+        
+        system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a person named Ziv, an action they took, and an outcome that took place. Answer three questions. 1) Did Ziv directly cause the outcome? If they caused it, it would not occur if they had not acted. 2) Did Ziv expect it would happen as a result of the action?  3) Did Ziv intend for this outcome to occur, either by taking the action or by planning for it? Each question has a yes or no answer. Return a json object with an entry named "results" containing a key with the name of the character, Ziv, and a value with the ordered list of answers to the three questions."""
 
-        user_prompt_content = f"Here is the scenario: {this_scenario}. Ziv chose to {this_act}, resulting in this outcome: {this_event}. For the {this_being}, please answer the three questions relating to the outcome."         
+        user_prompt_content = f"Here is the scenario: {this_scenario}. {this_act}, resulting in this outcome: {this_event}. For the character {this_being}, please answer the three questions relating to the outcome."         
 
         return get_response_dict(system_prompt_content, user_prompt_content)
+
+# def get_being_links_Ziv(this_scenario, this_act, this_event, this_being):
+        
+#         system_prompt_content = f"""You are a helpful assistant who is an expert at understanding human situations. You will recieve a scenario about a person named Ziv, an action they took, and an outcome resulting from that action. You will also be given the name of a character. Consider how this character relates to the outcome. Answer three questions. 1) Did they directly cause the outcome? If they caused it, it would not occur if they had not acted. 2) Did they expect it would happen as a result of the action? and 3) Did they intend for this outcome to occur? Each question has a yes or no answer. Return a json object with an entry named "results" containing a key with the name of the character and a value with the ordered list of answers to the three questions."""
+
+#         user_prompt_content = f"Here is the scenario: {this_scenario}. Ziv chose to {this_act}, resulting in this outcome: {this_event}. For the character {this_being}, please answer the three questions relating to the outcome."         
+
+#         return get_response_dict(system_prompt_content, user_prompt_content)
 
 def get_event_links(this_scenario, this_act, this_event, beings):
         print('hello world')
@@ -285,7 +293,26 @@ def convert_Ziv_I(old_sentence):
   new_sentence = this_resp[this_key[0]]
 
   return(new_sentence)
+        
+def convert_Ziv_I_item(old_item):
+   
+  #  function to turn Ziv into first person for output
+  #  use a call to GPT to do this. 
+  this_resp=get_response_dict("You are an expert in English grammar. Take this phrase and replace each reference to the person Ziv with a first-person pronoun (I, me, or my). If Ziv is not explicitly mentioned, return the original text. Return a json called 'converted sentence' with the converted text only.", old_item)
+  this_key=list(this_resp.keys())
+  new_sentence = this_resp[this_key[0]]
 
+  return(new_sentence)
+
+def convert_I_Ziv_item(old_item):
+   
+  #  function to turn Ziv into first person for output
+  #  use a call to GPT to do this. 
+  this_resp=get_response_dict("You are an expert in English grammar. Take this phrase and replace each mention of the first-person pronouns I, me, or my with the name Ziv or Ziv's. If I, me, or my is not present, return the original text. Return a json called 'converted sentence' with the converted text only.", old_item)
+  this_key=list(this_resp.keys())
+  new_sentence = this_resp[this_key[0]]
+
+  return(new_sentence)
 def convert_I_Ziv(old_sentence):
     
     this_resp=get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written from the perspective of a character name Ziv in third person instead of being written in the first person. Replace every instance of the first person pronoun (I, me, my, etc) with either the name Ziv or the pronouns they, their, them, etc. Return a json called 'converted text' with the converted text only.", old_sentence)
@@ -342,7 +369,7 @@ def main(scenario_json,output_filename,act_id):
 
     this_act = scenario_json['options'][act_id]
 
-    this_act_I = "I " + this_act
+    this_act_I = "I decide to" + this_act
 
     this_act_Ziv = convert_I_Ziv(this_act_I)
 
@@ -363,7 +390,7 @@ def main(scenario_json,output_filename,act_id):
     # get all beings, ensuring "I" is always a character 
     beings = (get_beings(this_scenario))
     beings_fixed =fix_I(fix_braces(beings['results']))        
-    beings_fixed_Ziv = ['Ziv' if x=="I" else x for x in beings_fixed]
+    beings_fixed_Ziv = [convert_I_Ziv_item(x) for x in beings_fixed]
 
     print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
 
@@ -409,6 +436,13 @@ def main(scenario_json,output_filename,act_id):
     #get all outcome events arising from the action
     events = get_events(this_scenario, this_act, beings)
     events_Ziv= events['results']
+    # remove overly similar outcomes
+    print('\nExtracted events: ')
+    print(events_Ziv)
+    events_Ziv=get_emb_distances.threshold_by_sim(events_Ziv,.06)
+    print('\n Similarity Thresholded events: ')
+    print(events_Ziv)
+
     # replace Ziv with first person pronoun.        
     events_I = [convert_Ziv_I(x) if x.find("Ziv")>-1 else x for x in events_Ziv]   
 
@@ -420,6 +454,8 @@ def main(scenario_json,output_filename,act_id):
 
     impacts_list = []
     for this_evt_Ziv, this_evt_I in zip(events_Ziv,events_I):
+        
+        print('\nProcessing impacts of event: '+this_evt_I)
 
         #create a node for this "event"
         this_out_node = g.add_node(Node(this_evt_I,'event'))
@@ -441,13 +477,67 @@ def main(scenario_json,output_filename,act_id):
         
         beings_string = ', '.join(beings_fixed_Ziv)
         impacts_Ziv = get_impacts_Ziv_multi(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
+        try:        
+          impacts_Ziv = impacts_Ziv['results']
+        except:
+          pass
+
+        # try to align the returned beings list with the known beings list
+        # create Ziv version of beings
+        # convert both into sets
+        beings_known_set = set(beings_fixed)
+        beings_found_list = list(impacts_Ziv.keys())
+
+        beings_found_list_I = []
+        for x in beings_found_list:
+            if(x!='I'):
+                  x=x.lower()                
+            beings_found_list_I.append(convert_Ziv_I_item(x))
         
+       
+        # beings_found_set = set(beings_found_list_I)
+
+        beings_not_found = []
+        for this_b in beings_found_list_I:
+          # is it listed exactly in beings list? great, remove it!
+          # print(this_b)
+          if(this_b in beings_known_set):
+            beings_known_set.discard(this_b)
+          else:
+            beings_not_found.append(this_b)
         
-        impacts_Ziv = impacts_Ziv['results']
-        impacts_Ziv_stripped={key.replace("Ziv's", "").lstrip():value for key, value in impacts_Ziv.items()}
-        impacts_I = {"I" if key == "Ziv" else key:value for key, value in impacts_Ziv_stripped.items()}
-        print(impacts_I.keys())
-        for being,score in impacts_I.items():
+
+        #beings_found_list_I represents ordered list of new keys for impacts_Ziv.
+
+
+        #handle any remaining beings in being_set were not identified
+        #some known beings were not found
+
+        # beings_known are any known beings not found in returned list
+        # beings_not_found are any in the returned list not found in known set
+
+        if(beings_known_set and beings_not_found):                        
+            #if there is one known unfound and one returned unfound, assume they match and replace with each other
+            if(len(beings_known_set)==len(beings_not_found)==1):
+                print('\nReplacing '+beings_not_found[0]+' with: ')
+                print(beings_known_set)
+                beings_found_list_I.remove(beings_not_found[0]) 
+                beings_found_list_I.append(beings_known_set.pop())
+                
+            else:
+            #the main errors arise if there is a returned being not in the known_beings list
+            # for each one of those, see if you can find its corresponding item by semantic sim. 
+              for item in beings_not_found:
+                matches = find_semantic_match(item,beings_fixed)
+                beings_found_list_I.remove(item)
+                rep_item = list(matches['result'].values())
+                beings_found_list_I.append(rep_item[0])
+
+        print("Scored impacts for these beings:")
+        print(beings_found_list_I)
+        print(list(impacts_Ziv.values()))
+              
+        for being,score in zip(beings_found_list_I,impacts_Ziv.values()):
             # print(being)
             # print(score)
             # Link(kind,value):
@@ -457,7 +547,7 @@ def main(scenario_json,output_filename,act_id):
             this_event_node = g.return_node(this_evt_I)[0]
             this_event_node.link_link(this_link,this_b_node)
         
-        for being,score in impacts_I.items():
+        for being,score in zip(beings_found_list_I,impacts_Ziv.values()):
 
             items_to_write = ",".join([this_evt_I,being,str(score)])
             impacts_list.append(items_to_write)
@@ -481,13 +571,14 @@ def main(scenario_json,output_filename,act_id):
         # for now just for main character
         this_being = 'Ziv'
         this_being_I = 'I'
+        print('\nProcessing event: ' + this_evt_I)
 
         #try to get the right links, ensure correct labels 
         success = 0
         count = 0
         while(success==0):        
 
-            links = get_being_links_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt, this_being)
+            links = get_being_links_Ziv_only(this_scenario_Ziv, this_act_Ziv, this_evt, this_being)
             count = count+1
             
             resp=links['results'][this_being]
@@ -503,12 +594,13 @@ def main(scenario_json,output_filename,act_id):
             if(count >5):
                 print('\n\n***Failed to get all correct links, check your scenario.**\n\n')
             
-
         # for now, just do being I
         # for each being, add the link to the graph with the right label
         # for being,resp in links['results'].items():                
 
-        this_label = cause[resp[0]] + know[resp[1]] + desire[resp[2]]               
+        this_label = cause[resp[0]] + know[resp[1]] + desire[resp[2]]   
+        print('CDK links for I')
+        print(this_label)            
 
         #create a new link
         # Link(kind,value):
