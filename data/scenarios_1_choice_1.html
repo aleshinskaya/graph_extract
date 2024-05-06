@@ -3,8 +3,8 @@
 <script type='text/javascript'src='https://unpkg.com/vis-network/standalone/umd/vis-network.min.js'></script>    
 <style type='text/css'>      
  #mynetwork {        
-		width: 2640px;         
-		height: 2640px;         
+		width: 2520px;         
+		height: 2520px;         
 		border: 1px solid lightgray;       
 	 }   
 	 </style>
@@ -70,40 +70,39 @@ function return_vis_dataset() {
 		{id: 8, label: "Commitment", color: {background: '#8e7db5'}},
 		{id: 9, label: "Kindness", color: {background: '#8e7db5'}},
 		{id: 10, label: "Responsibility", color: {background: '#8e7db5'}},
-		{id: 11, label: "Trustworthiness", color: {background: '#8e7db5'}},
-		{id: 12, label: "Neglect", color: {background: '#8e7db5'}},
-		{id: 13, label: "Selfishness", color: {background: '#8e7db5'}},
-		{id: 14, label: "Indifference", color: {background: '#8e7db5'}},
-		{id: 15, label: "I will continue to provide\n financial support for living expenses.", color: {background: '#e6c440'}},
-		{id: 16, label: "I will continue to assist\n with transportation to school.", color: {background: '#e6c440'}},
-		{id: 17, label: "I will continue to handle\n the majority of cooking duties.", color: {background: '#e6c440'}},
-		{id: 18, label: "My girlfriend may continue to\n depend on me for support\n and assistance.", color: {background: '#e6c440'}},
-		{id: 19, label: "I may experience ongoing feelings\n of guilt for feeling like\n I am wasting my girlfriend's\n time.", color: {background: '#e6c440'}},
-		{id: 20, label: "My girlfriend may remain unaware\n of my true feelings and\n intentions regarding our relationship.", color: {background: '#e6c440'}},
-		{id: 21, label: "My girlfriend's adaptation and integration\n into the local community may\n be delayed due to reliance\n on my support.", color: {background: '#e6c440'}},
-		{id: 22, label: "My girlfriend may miss opportunities\n to develop her English skills\n and independence.", color: {background: '#e6c440'}}
+		{id: 11, label: "Neglect", color: {background: '#8e7db5'}},
+		{id: 12, label: "Selfishness", color: {background: '#8e7db5'}},
+		{id: 13, label: "Indifference", color: {background: '#8e7db5'}},
+		{id: 14, label: "I continue to provide financial\n support for living expenses.", color: {background: '#e6c440'}},
+		{id: 15, label: "I continue to assist with\n transportation to school.", color: {background: '#e6c440'}},
+		{id: 16, label: "I continue to handle the\n majority of cooking duties.", color: {background: '#e6c440'}},
+		{id: 17, label: "My girlfriend continues to rely\n on me for support and\n assistance.", color: {background: '#e6c440'}},
+		{id: 18, label: "My girlfriend may experience delays\n in becoming fully independent.", color: {background: '#e6c440'}},
+		{id: 19, label: "I may experience increased feelings\n of guilt for feeling like\n I am wasting my girlfriend's\n time.", color: {background: '#e6c440'}},
+		{id: 20, label: "My girlfriend remains unaware of\n my true feelings and intentions\n regarding our relationship.", color: {background: '#e6c440'}},
+		{id: 21, label: "My girlfriend may miss opportunities\n to form a relationship with\n someone who has mutual feelings\n for a future together.", color: {background: '#e6c440'}}
 		]);
 	var edges = new vis.DataSet([ 
 		{from: 1, to: 3, label: "C+D+K+", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 14, label: "C+K+D+", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 1, to: 15, label: "C+K+D+", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 1, to: 16, label: "C+K+D+", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 1, to: 17, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 1, to: 18, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 1, to: 19, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 1, to: 20, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 21, label: "C+K-D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 1, to: 22, label: "C+K-D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 1, to: 21, label: "C+K+D-", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 4, label: "8", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 5, label: "9", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 6, label: "9", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 7, label: "9", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 8, label: "8", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 7, label: "8", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 8, label: "7", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 9, label: "9", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 10, label: "7", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 11, label: "8", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 11, label: "0", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 12, label: "0", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 13, label: "0", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 14, label: "0", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 3, to: 14, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 15, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 16, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 17, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
@@ -111,23 +110,22 @@ function return_vis_dataset() {
 		{from: 3, to: 19, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 20, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 3, to: 21, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 3, to: 22, label: "", color: {color: '#b518a8', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 14, to: 1, label: "-2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 14, to: 2, label: "8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 15, to: 1, label: "2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 15, to: 2, label: "8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 16, to: 1, label: "2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 16, to: 2, label: "8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 17, to: 1, label: "1", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 16, to: 2, label: "5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 17, to: 1, label: "-4", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 17, to: 2, label: "5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 18, to: 1, label: "-4", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 18, to: 2, label: "5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 18, to: 1, label: "-2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 18, to: 2, label: "-5", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 19, to: 1, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 19, to: 2, label: "-2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 20, to: 1, label: "-2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 20, to: 2, label: "-4", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 19, to: 2, label: "0", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 20, to: 1, label: "-3", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 20, to: 2, label: "-2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		{from: 21, to: 1, label: "-2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 21, to: 2, label: "-4", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 22, to: 1, label: "-2", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
-		{from: 22, to: 2, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
+		{from: 21, to: 2, label: "-8", color: {color: '#62a3a2', highlight: '#f540e6'}, font: { size: 18 }, arrows: { to: { enabled: true, type: 'arrow'}}},
 		]);
 
 	return ([edges,nodes])
