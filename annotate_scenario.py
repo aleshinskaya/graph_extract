@@ -174,7 +174,7 @@ def get_impacts_Ziv(this_scenario, this_act, this_event, this_being):
 
 def get_impacts_Ziv_multi(this_scenario, this_act, this_event, these_beings):
 
-        system_prompt_content = f"You are a helpful assistant who is an expert at understanding human situations. The following scenario is context for the user's question. {this_scenario} {this_act}  End of scenario. Suppose this leads to the outcome that {convert_lower(this_event)} Please rate how this specific outcome, on its own without considering any further consequences, is likely to directly and immediately impact each character listed by the user. Use a scale from -10 to +10, where -10 indicates that the outcome will immediately and directly cause the character substantial harm, and +10 indicates that it will immediately and directly cause the character substantial benefit. If you are not sure that the outcome will immediately and directly affect the character, return a rating of 0 or close to 0. Return a json object called 'results' with a key:value pair for being: rating."        
+        system_prompt_content = f"You are a helpful assistant who is an expert at understanding human situations. The following scenario is context for the user's question. {this_scenario} {this_act}  End of scenario. Suppose this leads to the outcome that {convert_lower(this_event)} Please rate how this specific outcome, on its own without considering any further consequences, is likely to directly and immediately impact each character listed by the user. Use a scale from -10 to +10, where -10 indicates that the outcome will immediately and directly cause the character substantial harm, and +10 indicates that it will immediately and directly cause the character substantial benefit. If you are not sure that the outcome will immediately and directly affect the character, return a rating of 0 or close to 0. Please evaluate only the immediate, direct impact of the event on its own, without considering any further consequences or outcomes downstream. Return a json object called 'results' with a key:value pair for being: rating."        
         
         user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
 
@@ -190,7 +190,7 @@ def find_semantic_match(item,list1):
 
 def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings):
 
-        system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will be given the description of an event and asked to evaluate how this event on its own (without considering any further consequences) is likely to impact the listed characters provided by the user. Rate the direct impact on each character using a scale from -10 to +10, where a rating of -10 indicates that the outcome will directly cause the character substantial harm, while a rating of +10 indicates that it will directly cause the character substantial benefit. Please evaluate only the immediate, direct impact of the event on its own, without considering any further consequences or outcomes downstream. If you are not sure that the outcome will immediately and directly affect the character very much, return a rating of 0 or close to 0. Return a json object called "results" with a key:value pair for being: rating.'
+        system_prompt_content = f'You are a helpful assistant who is an expert at understanding human situations. You will be given a description of an event and asked to evaluate how this event on its own (without considering any further consequences) is likely to impact the listed characters. Rate the direct impact on each character using a scale from -10 to +10, where a rating of -10 indicates that the outcome will directly cause the character substantial harm, while a rating of +10 indicates that it will directly cause the character substantial benefit. Please evaluate only the immediate, direct impact of the event on its own, without considering any further consequences or outcomes downstream. If you are not sure that the outcome will immediately and directly affect the character very much, return a rating of 0 or close to 0. Return a json object called "results" with a key:value pair for being: rating.'
 
         user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
 
@@ -412,13 +412,21 @@ def main(scenario_json,output_filename,act_id):
 
     # score action virtues
     values_positive= get_value_positive(this_scenario, this_act_I)
+    print('\nvalues:')
+    print(values_positive)
+    values_positive=get_emb_distances.threshold_by_sim(values_positive,.06)
+    print('\nvalues sim-thresh:')
+    print(values_positive)    
     values_negative= get_value_negative(this_scenario, this_act_I)
+    values_negative=get_emb_distances.threshold_by_sim(values_negative,.06)
     values_positive.update(values_negative)
     all_values = values_positive
-    # assert(all_values['values'])
-    # assert(all_values['anti-values'])
     all_values_flat=all_values['values']    
     all_values_flat.update(all_values['anti-values'])
+    all_values_flat_list = [x.lower() for x in all_values_flat.keys()]
+
+
+    scenario_dict["values"]= all_values_flat_list
 
     # create nodes and links for these items 
     for value in all_values_flat.items(): 
@@ -437,11 +445,11 @@ def main(scenario_json,output_filename,act_id):
     events = get_events(this_scenario, this_act, beings)
     events_Ziv= events['results']
     # remove overly similar outcomes
-    print('\nExtracted events: ')
-    print(events_Ziv)
+    # print('\nExtracted events: ')
+    # print(events_Ziv)
     events_Ziv=get_emb_distances.threshold_by_sim(events_Ziv,.06)
-    print('\n Similarity Thresholded events: ')
-    print(events_Ziv)
+    # print('\n Similarity Thresholded events: ')
+    # print(events_Ziv)
 
     # replace Ziv with first person pronoun.        
     events_I = [convert_Ziv_I(x) if x.find("Ziv")>-1 else x for x in events_Ziv]   
@@ -476,7 +484,7 @@ def main(scenario_json,output_filename,act_id):
         #   impacts_Ziv[this_being] = this_impact['score']
         
         beings_string = ', '.join(beings_fixed_Ziv)
-        impacts_Ziv = get_impacts_Ziv_multi(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
+        impacts_Ziv = get_impacts_Ziv_noscenario(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
         try:        
           impacts_Ziv = impacts_Ziv['results']
         except:
