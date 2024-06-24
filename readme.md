@@ -1,7 +1,7 @@
 
 ## <b>Graph Extract</b>
 
-This package offers an LLM-based tool to automatically extract meanintful structure in a text scenario with an action choice. Inputs are a text scenario and any number of action choices, entereed as a json. The output is a js/html visualization and associated json object that identifies the entities, actions, events, and relations among them within the scenario. This serves as an input to structured downstream reasoning. 
+This package offers an LLM-based tool to automatically extract meanintful structure in a text scenario with an action choice. Inputs are a text scenario and any number of action choices, entereed as a json. The output is a js/html visualization and associated json object that identifies the entities, actions, events, and relations among them within the scenario. This serves as an input to structured downstream reasoning. See examples in data/. 
 
 ## <i>Input Data</i>
 
