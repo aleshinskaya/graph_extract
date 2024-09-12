@@ -369,7 +369,7 @@ def main(scenario_json,output_filename,act_id):
 
     this_act = scenario_json['options'][act_id]
 
-    this_act_I = "I decide to" + this_act
+    this_act_I = "I decide to " + this_act
 
     this_act_Ziv = convert_I_Ziv(this_act_I)
 
