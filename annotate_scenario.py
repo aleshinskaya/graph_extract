@@ -105,6 +105,7 @@ def promptGPT(prompt_message_list, gpt_temperature=0, debug=False):
     gpt_data = {
             # "model": "gpt-3.5-turbo-1106", 
             "model": "gpt-4-turbo-preview",
+            #  "model": "gpt-4",
             "response_format": {"type": "json_object"}, # only works on 3.5-turbo-1106, 4 and above
             "temperature": gpt_temperature,
             "messages": prompt_message_list,
@@ -116,6 +117,7 @@ def promptGPT(prompt_message_list, gpt_temperature=0, debug=False):
         output = response.json()['choices'][0]['message']['content']
 
     return output
+
 
 def get_response_dict(system_prompt_content, user_prompt_content):
     system_prompt= {
@@ -330,25 +332,34 @@ def convert_lower(sentence):
 
     return new_s
 
+# pass list of values and score their importance
+def score_values(this_scenario, this_act, values_list):
+   
+   system_prompt_content = f"""You are an expert on human actions. The user will share an action they chose to take in a situation and a list of values or anti-values that the action might have exhibited. Please rate to what extent that action is characterized this list. Use a scale of 0 to 100, where 0 indicates that this value or anti-value does not characterize this action, and 100 indicates that it very much characterizes this action. Return a json object with each value as a key and your rating as a value."""
+
+   user_prompt_content = f"Here is my scenario. {this_scenario} My action is to {this_act} To what extent is this action characterized by each of these traits? {values_list}"     
+
+
+   print(system_prompt_content, user_prompt_content)
+
+   return get_response_dict(system_prompt_content, user_prompt_content)
+
 def get_value_positive(this_scenario, this_act):
 
-    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take. Your task is to identify the values and virtues that the user exhibits by taking this action.  Give each of these values a score from 0 to 10, where 10 indicates that this value is considered incredibly important to people on avarege, whereas 0 indicates this value is generally unimportant to people on average. Return a json object called 'values' with the values and their scores."""
+    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take in a situation. Your task is to identify the values and virtues that the user exhibits by taking this action. Return a json object called 'values' listing the values and nothing more."""
+          
+    user_prompt_content = f"""Here is my scenario. {this_scenario}. My action is to {this_act} List the virtues and values of this action."""
 
-    # user_prompt_content = f"Here is my scenario. {this_scenario} My action is to {this_act} List the virtues and values of this action and a score for how important each of them might be. "    
-    
-    user_prompt_content = f"My action is to {this_act} List the virtues and values of this action and a score for how important each of them might be. "     
-
-    # print(system_prompt_content, user_prompt_content)
+    print(system_prompt_content, user_prompt_content)
 
     return get_response_dict(system_prompt_content, user_prompt_content)
 
 def get_value_negative(this_scenario, this_act):
 
-    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take. Your task is to identify the anti-values and vices that the user exhibits by taking this action. Give each of these values a score from 0 to -10, where -10 indicates that this anti-value is considered incredibly important to people on avarege, whereas 0 indicates this anti-value is generally unimportant to people on average. Return a json object called 'anti-values' with the values and their scores."""
-
-        # user_prompt_content = f"Here is my scenario. {this_scenario} My action is to {this_act} List the virtues and values of this action and a score for how important each of them might be. "    
-        
-    user_prompt_content = f"My action is to {this_act} List the anti-values of this action and a score for how important each of them might be. "           
+    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take in a situation. Your task is to identify the anti-values and vices that the user exhibits by taking this action. Return a json object called 'anti-values' listing the anti-values and nothing more."""
+          
+    user_prompt_content = f"""Here is my scenario. {this_scenario}. My action is to {this_act} List the anti-values and vices of this action."""
+         
 
     # print(system_prompt_content, user_prompt_content)
 
@@ -356,7 +367,7 @@ def get_value_negative(this_scenario, this_act):
 
 
 # scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
-def main(scenario_json,output_filename,act_id):
+def main(scenario_json,output_filename,act_id,all_human_data):
    
    # validate the scenario json
     assert isinstance(scenario_json['id'],int)
@@ -409,22 +420,49 @@ def main(scenario_json,output_filename,act_id):
     this_link = g.add_link(Link('b-link','C+D+K+'))
     this_being_node.link_link(this_link,act_node)
 
-
-    # score action virtues
+# not evaluation version
+    # elicit action virtues and vices
     values_positive= get_value_positive(this_scenario, this_act_I)
     print('\nvalues:')
     print(values_positive)
     values_positive=get_emb_distances.threshold_by_sim(values_positive,.06)
     print('\nvalues sim-thresh:')
-    print(values_positive)    
+    print(values_positive)
     values_negative= get_value_negative(this_scenario, this_act_I)
     values_negative=get_emb_distances.threshold_by_sim(values_negative,.06)
-    values_positive.update(values_negative)
-    all_values = values_positive
-    all_values_flat=all_values['values']    
-    all_values_flat.update(all_values['anti-values'])
-    all_values_flat_list = [x.lower() for x in all_values_flat.keys()]
+    print(values_negative)
+    #combine positive and negative values into a single list
+    all_values = {}
+    all_values.update(values_positive)
+    all_values.update(values_negative)
+    all_values_flat = []
+    all_values_flat.extend(all_values['values'])  
+    all_values_flat.extend(all_values['anti-values'])
+    all_values_flat_list = [x.lower() for x in all_values_flat]
+    #score action virtues
+    all_values_scored = score_values(this_scenario, this_act_I,', '.join(all_values_flat_list))
 
+# evaluation version
+    #compare with human value score data
+    hd_value_names = list(all_human_data['value_scores'].keys())
+    hd_value_scores = all_human_data['value_scores'].values()
+
+    # evaluation version: score values from annotation data. 
+    annot_values_scored = score_values(this_scenario, this_act_I,', '.join(hd_value_names))
+
+   # compare to scores from human data
+    all_human_data['value_scores']
+    annot_values_scored
+    #assert that the two dictionaries have the same keys  
+    assert set(all_human_data['value_scores'].keys()) == set(annot_values_scored.keys()) 
+    #run correlation on their values
+    annot_values_scored_values = list(annot_values_scored.values())
+    hd_value_scores_values = list(all_human_data['value_scores'].values())
+    annot_values_scored_values = [float(x) for x in annot_values_scored_values]
+    hd_value_scores_values = [float(x) for x in hd_value_scores_values]
+    #calculate correlation
+    corr = np.corrcoef(annot_values_scored_values,hd_value_scores_values)
+    print(corr)
 
     scenario_dict["values"]= all_values_flat_list
 

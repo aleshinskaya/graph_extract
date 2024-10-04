@@ -9,13 +9,13 @@ importlib.reload(annotate_scenario)
 importlib.reload(translate_to_vis)
 
 
-
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
 DATA_DIR = CUR_DIR+'/data/'
+DATA_DIR_HUMAN = DATA_DIR+'/human_annotation/'
 
 
 # filename = 'scenarios.json'
-# scenario_id = 3
+# scenario_id = 1
 
 def main(filename: str = 'scenarios.json', scenario_id: int = 0):
 
@@ -42,10 +42,23 @@ def main(filename: str = 'scenarios.json', scenario_id: int = 0):
     output_filename = filename.split('.json')[0]+'_'+str(scenario_id)
 
     # loop through action choices to generate basic json, value json, and visualization
+    # act_id = '2'
     for act_id in scenario_json['options'].keys(): 
+
+        #load some human annotation data
+        this_human_filename = DATA_DIR_HUMAN+output_filename+'_choice_'+str(act_id)+'_value_scores.csv'
+        all_human_data= {}
+        if os.path.exists(this_human_filename):
+            #load csv file
+             this_human_data = pd.read_csv(this_human_filename)
+             #use value_names as keys and mean as values and make a dictionary
+             all_human_data['value_scores']= this_human_data.set_index('value_names')['mean'].to_dict()
+        else:
+            print('No human annotation data found for this scenario and action choice.')
+            
     
         # run the annotation process
-        json_filename = annotate_scenario.main(scenario_json,output_filename,act_id)  
+        json_filename = annotate_scenario.main(scenario_json,output_filename,act_id,all_human_data)  
 
         # json_filename = '/Users/anna/Dropbox/AOI/MoralLearning/CodeSets/graph_extract/data/scenarios_0_choice_1.json'
         translate_to_vis.main(json_filename)
