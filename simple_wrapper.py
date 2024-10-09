@@ -1,6 +1,7 @@
 import json
 import os
 import textwrap
+
 import annotate_scenario
 import translate_to_vis
 import importlib
@@ -8,14 +9,19 @@ importlib.reload(annotate_scenario)
 importlib.reload(translate_to_vis)
 
 
+
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
+
 DATA_DIR = CUR_DIR+'/data/'
 DATA_DIR_HUMAN = DATA_DIR+'/human_annotation/'
 
 
-
+#select scenario and action choice
 filename = 'scenarios.json'
-scenario_id = 1
+scenario_id = 0
+act_id = '1'
+
+
 
 
 with open(DATA_DIR+filename, 'r') as file:
@@ -40,7 +46,6 @@ print(textwrap.fill(this_scenario_text, width = 100), '\n\n')
 
 output_filename = filename.split('.json')[0]+'_'+str(scenario_id)
 
-act_id = '2'
 
 #load some human annotation data
 this_human_filename = DATA_DIR_HUMAN+output_filename+'_choice_'+str(act_id)+'_value_scores.csv'
@@ -54,7 +59,7 @@ else:
     print('No human annotation data found for this scenario and action choice.')
         
 
-# run the annotation process
+# run the annotation process -- or just jump into that code for interactive mode
 json_filename = annotate_scenario.main(scenario_json,output_filename,act_id,all_human_data)  
 
         # json_filename = '/Users/anna/Dropbox/AOI/MoralLearning/CodeSets/graph_extract/data/scenarios_0_choice_1.json'

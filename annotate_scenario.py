@@ -335,12 +335,11 @@ def convert_lower(sentence):
 # pass list of values and score their importance
 def score_values(this_scenario, this_act, values_list):
    
-   system_prompt_content = f"""You are an expert on human actions. The user will share an action they chose to take in a situation and a list of values or anti-values that the action might have exhibited. Please rate to what extent that action is characterized this list. Use a scale of 0 to 100, where 0 indicates that this value or anti-value does not characterize this action, and 100 indicates that it very much characterizes this action. Return a json object with each value as a key and your rating as a value."""
+   system_prompt_content = f"""You are an expert on human actions. The user will share an action they chose to take in a situation and a list of values and anti-values that the action might have exhibited. Please rate to what extent the action is characterized by each value or anti-value. Use a scale of 0 to 100, where 0 indicates that this value or anti-value does not characterize this action, and 100 indicates that it very much characterizes this action. Return a json object with each value as a key and your rating as a value."""
 
    user_prompt_content = f"Here is my scenario. {this_scenario} My action is to {this_act} To what extent is this action characterized by each of these traits? {values_list}"     
 
 
-   print(system_prompt_content, user_prompt_content)
 
    return get_response_dict(system_prompt_content, user_prompt_content)
 
@@ -350,7 +349,7 @@ def get_value_positive(this_scenario, this_act):
           
     user_prompt_content = f"""Here is my scenario. {this_scenario}. My action is to {this_act} List the virtues and values of this action."""
 
-    print(system_prompt_content, user_prompt_content)
+   
 
     return get_response_dict(system_prompt_content, user_prompt_content)
 
@@ -361,89 +360,71 @@ def get_value_negative(this_scenario, this_act):
     user_prompt_content = f"""Here is my scenario. {this_scenario}. My action is to {this_act} List the anti-values and vices of this action."""
          
 
-    # print(system_prompt_content, user_prompt_content)
-
     return get_response_dict(system_prompt_content, user_prompt_content)
 
+def process_beings(this_scenario,this_act,g):
+  beings = (get_beings(this_scenario))
+  beings_fixed =fix_I(fix_braces(beings['results']))        
+  beings_fixed_Ziv = [convert_I_Ziv_item(x) for x in beings_fixed]
 
-# scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
-def main(scenario_json,output_filename,act_id,all_human_data):
+  print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
+
+  beings_list = ",".join(beings_fixed)
+
+  #add each being to the graph
+  for b in beings_fixed:
+      #create new node & add to graph               
+      g.add_node(Node(b,'being'))
+
+  #create link between being "I" and action choice
+  this_being_node = g.return_node("I")[0]
+  act_node = g.add_node(Node(this_act,'action_choice'))
+  # Link(kind,value):
+  this_link = g.add_link(Link('b-link','C+D+K+'))
+  this_being_node.link_link(this_link,act_node)
+
+  return beings_list 
+
+def process_values(this_scenario, this_act_I, this_act, g):
    
-   # validate the scenario json
-    assert isinstance(scenario_json['id'],int)
-    assert scenario_json['text']
-    assert scenario_json['options']
+  # elicit action virtues and vicces
+  values_positive= get_value_positive(this_scenario, this_act_I)
+  # print('\nvalues:')
+  values_positive=get_emb_distances.threshold_by_sim(values_positive,.06)
+  # print(values_positive)
+  values_negative= get_value_negative(this_scenario, this_act_I)
+  values_negative=get_emb_distances.threshold_by_sim(values_negative,.06)
+  # print(values_negative)
+  #combine positive and negative values into a single list
+  all_values = {}
+  all_values.update(values_positive)
+  all_values.update(values_negative)
+  all_values_flat = []
+  all_values_flat.extend(all_values['values'])  
+  all_values_flat.extend(all_values['anti-values'])
+  all_values_flat_list = [x.lower() for x in all_values_flat]
+  #score action virtues
+  all_values_scored = score_values(this_scenario, this_act_I,', '.join(all_values_flat_list))
 
-    print(output_filename)
+  # create nodes and links for these items 
+  for value in all_values_scored.items() : 
+      # print(value)       
+      this_name = value[0]
+      this_score = value[1]        
+      # create node and add it to graph
+      this_v_node = g.add_node(Node(this_name,'value'))
+      # create link with score
+      this_link = g.add_link(Link('v-link',str(this_score)))
+      # connect it to the action node    
+      act_node = g.return_node(this_act)[0]             
+      act_node.link_link(this_link,this_v_node)
 
-    g = Graph()
+  return (all_values_scored,all_values_flat_list)
 
-    this_act = scenario_json['options'][act_id]
-
-    this_act_I = "I decide to " + this_act
-
-    this_act_Ziv = convert_I_Ziv(this_act_I)
-
-    print('\n\nProcessing choice '+act_id +', '+this_act) 
-
-    this_scenario = scenario_json['text']
-    this_scenario_Ziv = convert_I_Ziv(this_scenario)
-
-    # create a dictionary to write out to csv later
-    scenario_dict = {'scenario': this_scenario, 'scenario_idx': scenario_json['id'],
-                      'choice': this_act_I}
-    #initialize Graph
-    del(g)
-    g = Graph()
-    g.reset()        
-    # print(g.print_graph())
-
-    # get all beings, ensuring "I" is always a character 
-    beings = (get_beings(this_scenario))
-    beings_fixed =fix_I(fix_braces(beings['results']))        
-    beings_fixed_Ziv = [convert_I_Ziv_item(x) for x in beings_fixed]
-
-    print("\nIdentified these entities: \n\n"+"\n".join(beings_fixed))
-
-    beings_list = ",".join(beings_fixed)
-    scenario_dict["entities"]= beings_list
-
-    #add each being to the graph
-    for b in beings_fixed:
-        #create new node & add to graph               
-        g.add_node(Node(b,'being'))
-
-    #create link between being "I" and action choice
-    this_being_node = g.return_node("I")[0]
-    act_node = g.add_node(Node(this_act,'action_choice'))
-    # Link(kind,value):
-    this_link = g.add_link(Link('b-link','C+D+K+'))
-    this_being_node.link_link(this_link,act_node)
-
-# not evaluation version
-    # elicit action virtues and vices
-    values_positive= get_value_positive(this_scenario, this_act_I)
-    print('\nvalues:')
-    print(values_positive)
-    values_positive=get_emb_distances.threshold_by_sim(values_positive,.06)
-    print('\nvalues sim-thresh:')
-    print(values_positive)
-    values_negative= get_value_negative(this_scenario, this_act_I)
-    values_negative=get_emb_distances.threshold_by_sim(values_negative,.06)
-    print(values_negative)
-    #combine positive and negative values into a single list
-    all_values = {}
-    all_values.update(values_positive)
-    all_values.update(values_negative)
-    all_values_flat = []
-    all_values_flat.extend(all_values['values'])  
-    all_values_flat.extend(all_values['anti-values'])
-    all_values_flat_list = [x.lower() for x in all_values_flat]
-    #score action virtues
-    all_values_scored = score_values(this_scenario, this_act_I,', '.join(all_values_flat_list))
-
-# evaluation version
-    #compare with human value score data
+def evaluate_values(this_scenario, this_act_I, all_human_data):
+   
+    #for evaluation: score values from annotation list
+    #then compare with human value score data
     hd_value_names = list(all_human_data['value_scores'].keys())
     hd_value_scores = all_human_data['value_scores'].values()
 
@@ -451,8 +432,6 @@ def main(scenario_json,output_filename,act_id,all_human_data):
     annot_values_scored = score_values(this_scenario, this_act_I,', '.join(hd_value_names))
 
    # compare to scores from human data
-    all_human_data['value_scores']
-    annot_values_scored
     #assert that the two dictionaries have the same keys  
     assert set(all_human_data['value_scores'].keys()) == set(annot_values_scored.keys()) 
     #run correlation on their values
@@ -460,152 +439,116 @@ def main(scenario_json,output_filename,act_id,all_human_data):
     hd_value_scores_values = list(all_human_data['value_scores'].values())
     annot_values_scored_values = [float(x) for x in annot_values_scored_values]
     hd_value_scores_values = [float(x) for x in hd_value_scores_values]
+    print("scored values:")
+    print(annot_values_scored)
+    print("human data:")
+    print(all_human_data['value_scores'])
     #calculate correlation
     corr = np.corrcoef(annot_values_scored_values,hd_value_scores_values)
-    print(corr)
+    print('Value score correlation with human data: %.2f' %corr[0,1])
 
-    scenario_dict["values"]= all_values_flat_list
+def process_outcomes(this_scenario, this_act, beings):   
 
-    # create nodes and links for these items 
-    for value in all_values_flat.items(): 
-        # print(value)       
-        this_name = value[0]
-        this_score = value[1]        
-        # create node and add it to graph
-        this_v_node = g.add_node(Node(this_name,'value'))
-        # create link with score
-        this_link = g.add_link(Link('v-link',str(this_score)))
-        # connect it to the action node                 
-        act_node.link_link(this_link,this_v_node)
-        
+  #get all outcome events arising from the action
+  events = get_events(this_scenario, this_act, beings)
+  events_Ziv= events['results']
+  # remove overly similar outcomes
+  events_Ziv=get_emb_distances.threshold_by_sim(events_Ziv,.06)
+  
+  #replace Ziv with first person pronoun.        
+  events_I = [convert_Ziv_I(x) if x.find("Ziv")>-1 else x for x in events_Ziv]   
 
-    #get all outcome events arising from the action
-    events = get_events(this_scenario, this_act, beings)
-    events_Ziv= events['results']
-    # remove overly similar outcomes
-    # print('\nExtracted events: ')
-    # print(events_Ziv)
-    events_Ziv=get_emb_distances.threshold_by_sim(events_Ziv,.06)
-    # print('\n Similarity Thresholded events: ')
-    # print(events_Ziv)
+  return(events_Ziv,events_I)
 
-    # replace Ziv with first person pronoun.        
-    events_I = [convert_Ziv_I(x) if x.find("Ziv")>-1 else x for x in events_Ziv]   
+def process_impacts(this_scenario, this_act_Ziv, events_Ziv,events_I, beings_fixed_Ziv,beings_fixed,g):
 
-    # print("\n".join(events_I))         
-    scenario_dict["outcomes"]= events_I
+  #create list of impacts on each being
+  impacts_list = []
+  for this_evt_Ziv, this_evt_I in zip(events_Ziv,events_I):
 
-    #add links from each action to each event outcome and score impacts
-    # we will do this maintaining the Ziv pronouns
+    print('\nProcessing impacts of event: '+this_evt_I)
 
-    impacts_list = []
-    for this_evt_Ziv, this_evt_I in zip(events_Ziv,events_I):
-        
-        print('\nProcessing impacts of event: '+this_evt_I)
+    #create a node for this "event"
+    this_out_node = g.add_node(Node(this_evt_I,'event'))
 
-        #create a node for this "event"
-        this_out_node = g.add_node(Node(this_evt_I,'event'))
+    #create a link between act and event
+    this_link = g.add_link(Link('e_link',''))
+    act_node.link_link(this_link,this_out_node)
 
-        #create a link between act and event
-        # Link(kind,value):
-        this_link = g.add_link(Link('e_link',''))
-        act_node.link_link(this_link,this_out_node)
+    beings_string = ', '.join(beings_fixed_Ziv)
+    impacts_Ziv = get_impacts_Ziv_noscenario(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
+    try:        
+      impacts_Ziv = impacts_Ziv['results']
+    except:
+      pass
 
-        # score impacts using Ziv pronouns, for each being in turn
-        # impacts_Ziv = {}
-        # for this_being in beings_fixed_Ziv:
-        #   impacts_d = {}
-        #   this_impact = get_impacts_Ziv(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, this_being) 
-        #   # impacts_d['being'] = this_being
-        #   # impacts_d['score'] = this_impact['score']
-        #   # impacts_Ziv.append(impacts_d)
-        #   impacts_Ziv[this_being] = this_impact['score']
-        
-        beings_string = ', '.join(beings_fixed_Ziv)
-        impacts_Ziv = get_impacts_Ziv_noscenario(this_scenario_Ziv, this_act_Ziv, this_evt_Ziv, beings_string) 
-        try:        
-          impacts_Ziv = impacts_Ziv['results']
-        except:
-          pass
+    # try to align the returned beings list with the known beings list
+    # create Ziv version of beings
+    # convert both into sets
+    beings_known_set = set(beings_fixed)
+    beings_found_list = list(impacts_Ziv.keys())
 
-        # try to align the returned beings list with the known beings list
-        # create Ziv version of beings
-        # convert both into sets
-        beings_known_set = set(beings_fixed)
-        beings_found_list = list(impacts_Ziv.keys())
+    beings_found_list_I = []
+    for x in beings_found_list:
+      if(x!='I'):
+            x=x.lower()                
+      beings_found_list_I.append(convert_Ziv_I_item(x))
 
-        beings_found_list_I = []
-        for x in beings_found_list:
-            if(x!='I'):
-                  x=x.lower()                
-            beings_found_list_I.append(convert_Ziv_I_item(x))
-        
-       
-        # beings_found_set = set(beings_found_list_I)
-
-        beings_not_found = []
-        for this_b in beings_found_list_I:
-          # is it listed exactly in beings list? great, remove it!
-          # print(this_b)
-          if(this_b in beings_known_set):
-            beings_known_set.discard(this_b)
-          else:
-            beings_not_found.append(this_b)
-        
-
-        #beings_found_list_I represents ordered list of new keys for impacts_Ziv.
+      beings_not_found = []
+      for this_b in beings_found_list_I:
+        # is it listed exactly in beings list? great, remove it!
+        # print(this_b)
+        if(this_b in beings_known_set):
+          beings_known_set.discard(this_b)
+        else:
+          beings_not_found.append(this_b)
+      #beings_found_list_I represents ordered list of new keys for impacts_Ziv.
 
 
-        #handle any remaining beings in being_set were not identified
-        #some known beings were not found
-
-        # beings_known are any known beings not found in returned list
-        # beings_not_found are any in the returned list not found in known set
-
-        if(beings_known_set and beings_not_found):                        
-            #if there is one known unfound and one returned unfound, assume they match and replace with each other
-            if(len(beings_known_set)==len(beings_not_found)==1):
-                print('\nReplacing '+beings_not_found[0]+' with: ')
-                print(beings_known_set)
-                beings_found_list_I.remove(beings_not_found[0]) 
-                beings_found_list_I.append(beings_known_set.pop())
-                
-            else:
-            #the main errors arise if there is a returned being not in the known_beings list
-            # for each one of those, see if you can find its corresponding item by semantic sim. 
-              for item in beings_not_found:
-                matches = find_semantic_match(item,beings_fixed)
-                beings_found_list_I.remove(item)
-                rep_item = list(matches['result'].values())
-                beings_found_list_I.append(rep_item[0])
-
-        print("Scored impacts for these beings:")
-        print(beings_found_list_I)
-        print(list(impacts_Ziv.values()))
+    #handle any remaining beings in being_set were not identified
+    #some known beings were not found
+    # beings_known are any known beings not found in returned list
+    # beings_not_found are any in the returned list not found in known set
+    if(beings_known_set and beings_not_found):                        
+          #if there is one known unfound and one returned unfound, assume they match and replace with each other
+          if(len(beings_known_set)==len(beings_not_found)==1):
+              print('\nReplacing '+beings_not_found[0]+' with: ')
+              print(beings_known_set)
+              beings_found_list_I.remove(beings_not_found[0]) 
+              beings_found_list_I.append(beings_known_set.pop())
               
-        for being,score in zip(beings_found_list_I,impacts_Ziv.values()):
-            # print(being)
-            # print(score)
-            # Link(kind,value):
-            this_link = g.add_link(Link('utility',str(score)))
-            this_b_node = g.return_node(being.lstrip())[0]
-            # print(being)
-            this_event_node = g.return_node(this_evt_I)[0]
-            this_event_node.link_link(this_link,this_b_node)
-        
-        for being,score in zip(beings_found_list_I,impacts_Ziv.values()):
+          else:
+          #the main errors arise if there is a returned being not in the known_beings list
+          # for each one of those, see if you can find its corresponding item by semantic sim. 
+            for item in beings_not_found:
+              matches = find_semantic_match(item,beings_fixed)
+              beings_found_list_I.remove(item)
+              rep_item = list(matches['result'].values())
+              beings_found_list_I.append(rep_item[0])
 
-            items_to_write = ",".join([this_evt_I,being,str(score)])
-            impacts_list.append(items_to_write)
+    print("Scored impacts for these beings:")
+    print(beings_found_list_I)
+    print(list(impacts_Ziv.values()))
+          
+    for being,score in zip(beings_found_list_I,impacts_Ziv.values()):
+        # print(being)
+        # print(score)
+        # Link(kind,value):
+        this_link = g.add_link(Link('utility',str(score)))
+        this_b_node = g.return_node(being.lstrip())[0]
+        # print(being)
+        this_event_node = g.return_node(this_evt_I)[0]
+        this_event_node.link_link(this_link,this_b_node)
 
-    # scenario_dict["impacts"] = impacts_list
+    for being,score in zip(beings_found_list_I,impacts_Ziv.values()):
 
-      #write dict as json here for now
-    this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
-    write_json(this_output_filename_qual,[scenario_dict])
-      
-    # add links from beings to events
-            
+        items_to_write = ",".join([this_evt_I,being,str(score)])
+        impacts_list.append(items_to_write)
+
+  return(impacts_list)
+
+def process_causal_links(this_scenario_Ziv, events_Ziv, events_I, this_act_Ziv):
+   
     # dictionaries for translating into labels
     cause = {"No": 'C-', "Yes": 'C+',"no": 'C-', "yes": 'C+'}
     know = {"No": 'K-',"Yes": 'K+',"no": 'K-',"yes": 'K+'}
@@ -655,12 +598,74 @@ def main(scenario_json,output_filename,act_id,all_human_data):
         this_event_node = g.return_node(this_evt_I)[0]
         this_b_node.link_link(this_link,this_event_node)
 
-    g_print = g.print_graph()
+# scenario json must be a single line with scenario json with entries 'id', 'text', and 'options' {1:, 2: , etc}
+def main(scenario_json,output_filename,act_id,all_human_data):
+   
+   # validate the scenario json
+    assert isinstance(scenario_json['id'],int)
+    assert scenario_json['text']
+    assert scenario_json['options']
+
+    print(output_filename)
+    
+    # get the action choice and convert to various pronoun options
+    this_act = scenario_json['options'][act_id]
+    this_act_I = "I decide to " + this_act
+    this_act_Ziv = convert_I_Ziv(this_act_I)
+    print('\n\nProcessing choice '+act_id +', '+this_act) 
+
+    #get the scenario and convert to various pronoun options
+    this_scenario = scenario_json['text']
+    this_scenario_Ziv = convert_I_Ziv(this_scenario)
+
+    # create a dictionary to write out to csv later
+    scenario_dict = {'scenario': this_scenario, 'scenario_idx': scenario_json['id'],
+                      'choice': this_act_I}
+    
+    #initialize Graph object    
+    g = Graph()
+    g.reset()        
+
+    #BEINGS
+    # identify all sentient beings
+    beings_list = process_beings(this_scenario,this_act,g)
+    #g.print_graph()
+    #update the scenario dict with the beings
+    scenario_dict["entities"]= beings_list
+
+    #VALUE SCORES
+    #get all values and anti-values
+    processed_values  =process_values(this_scenario, this_act_I, this_act,g)
+    all_values_scored = processed_values[0]
+    scenario_dict["values"]= processed_values[1]
+    #compare to human data
+    evaluate_values(this_scenario, this_act_I, all_human_data)
+    
+    # #OUTCOMES
+    # processed_events = process_outcomes(this_scenario, this_act, beings)
+    # events_I= processed_events[1]
+    # events_Ziv= processed_events[0]
+    # # print("\n".join(events_I))         
+    # scenario_dict["outcomes"]= events_I
+
+    # #UTILITIES
+    # impacts_list = process_outcomes(this_scenario, this_act, beings) 
+
+    # #CAUSAL AND INTENTIONAL LINKS
+    # process_causal_links(this_scenario_Ziv, events_Ziv, events_I, this_act_Ziv)    
+
+    # #write scenario dict as json for qualtrics output
+    # this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'
+    # write_json(this_output_filename_qual,[scenario_dict])     
             
     this_output_filename = output_filename+'_choice_'+str(act_id)+'.json'
-    print('\n\nWriting to file: '+this_output_filename)
-    # write out json file
-    write_jsonlines(DATA_DIR+this_output_filename,g_print)
+    # print('\n\nWriting to file: '+this_output_filename)
+
+    # # write out json file with the full graph
+    # g_print = g.print_graph()
+    # write_jsonlines(DATA_DIR+this_output_filename,g_print)
+
+    print('\n\n')
 
     return (DATA_DIR+this_output_filename)
     

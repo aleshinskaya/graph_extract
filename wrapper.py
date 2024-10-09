@@ -61,7 +61,7 @@ def main(filename: str = 'scenarios.json', scenario_id: int = 0):
         json_filename = annotate_scenario.main(scenario_json,output_filename,act_id,all_human_data)  
 
         # json_filename = '/Users/anna/Dropbox/AOI/MoralLearning/CodeSets/graph_extract/data/scenarios_0_choice_1.json'
-        translate_to_vis.main(json_filename)
+        # translate_to_vis.main(json_filename)
 
     
 
