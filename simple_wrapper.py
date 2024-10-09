@@ -1,7 +1,6 @@
 import json
 import os
 import textwrap
-
 import annotate_scenario
 import translate_to_vis
 import importlib
@@ -11,7 +10,6 @@ importlib.reload(translate_to_vis)
 
 
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
-
 DATA_DIR = CUR_DIR+'/data/'
 DATA_DIR_HUMAN = DATA_DIR+'/human_annotation/'
 
@@ -20,8 +18,6 @@ DATA_DIR_HUMAN = DATA_DIR+'/human_annotation/'
 filename = 'scenarios.json'
 scenario_id = 0
 act_id = '1'
-
-
 
 
 with open(DATA_DIR+filename, 'r') as file:

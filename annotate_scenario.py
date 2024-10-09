@@ -347,7 +347,7 @@ def get_value_positive(this_scenario, this_act):
 
     system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take in a situation. Your task is to identify the values and virtues that the user exhibits by taking this action. Return a json object called 'values' listing the values and nothing more."""
           
-    user_prompt_content = f"""Here is my scenario. {this_scenario}. My action is to {this_act} List the virtues and values of this action."""
+    user_prompt_content = f"""Here is my scenario. {this_scenario} My action is to {this_act} List the virtues and values of this action."""
 
    
 
@@ -635,11 +635,12 @@ def main(scenario_json,output_filename,act_id,all_human_data):
 
     #VALUE SCORES
     #get all values and anti-values
-    processed_values  =process_values(this_scenario, this_act_I, this_act,g)
+    processed_values  = process_values(this_scenario, this_act_I, this_act,g)
     all_values_scored = processed_values[0]
     scenario_dict["values"]= processed_values[1]
+    
     #compare to human data
-    evaluate_values(this_scenario, this_act_I, all_human_data)
+    # evaluate_values(this_scenario, this_act_I, all_human_data)
     
     # #OUTCOMES
     # processed_events = process_outcomes(this_scenario, this_act, beings)
