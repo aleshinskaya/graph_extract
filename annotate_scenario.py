@@ -547,7 +547,7 @@ def process_impacts(this_scenario, this_act_Ziv, events_Ziv,events_I, beings_fix
 
   return(impacts_list)
 
-def process_causal_links(this_scenario_Ziv, events_Ziv, events_I, this_act_Ziv):
+def process_causal_links(this_scenario_Ziv, events_Ziv, events_I, this_act_Ziv,g):
    
     # dictionaries for translating into labels
     cause = {"No": 'C-', "Yes": 'C+',"no": 'C-', "yes": 'C+'}
@@ -643,17 +643,19 @@ def main(scenario_json,output_filename,act_id,all_human_data):
     # evaluate_values(this_scenario, this_act_I, all_human_data)
     
     # #OUTCOMES
-    # processed_events = process_outcomes(this_scenario, this_act, beings)
-    # events_I= processed_events[1]
-    # events_Ziv= processed_events[0]
-    # # print("\n".join(events_I))         
-    # scenario_dict["outcomes"]= events_I
+    # ANNA double check that beings_list is the right thing
+    processed_events = process_outcomes(this_scenario, this_act, beings_list)
+    events_I= processed_events[1]
+    events_Ziv= processed_events[0]
+    # print("\n".join(events_I))         
+    scenario_dict["outcomes"]= events_I
 
     # #UTILITIES
-    # impacts_list = process_outcomes(this_scenario, this_act, beings) 
+    #ANNA FIX THIS
+     impacts_list = process_impacts(this_scenario, this_act, beings_list,g) 
 
     # #CAUSAL AND INTENTIONAL LINKS
-    # process_causal_links(this_scenario_Ziv, events_Ziv, events_I, this_act_Ziv)    
+    process_causal_links(this_scenario_Ziv, events_Ziv, events_I, this_act_Ziv)    
 
     # #write scenario dict as json for qualtrics output
     # this_output_filename_qual = DATA_DIR+'qualtrics_'+output_filename+'_choice_'+str(act_id)+'.json'

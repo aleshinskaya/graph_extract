@@ -6,7 +6,7 @@ import translate_to_vis
 import importlib
 importlib.reload(annotate_scenario)
 importlib.reload(translate_to_vis)
-
+import pandas as pd
 
 
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
