@@ -42,7 +42,6 @@ print(textwrap.fill(this_scenario_text, width = 100), '\n\n')
 
 output_filename = filename.split('.json')[0]+'_'+str(scenario_id)
 
-
 #load some human annotation data
 this_human_filename = DATA_DIR_HUMAN+output_filename+'_choice_'+str(act_id)+'_value_scores.csv'
 all_human_data= {}
@@ -58,5 +57,4 @@ else:
 # run the annotation process -- or just jump into that code for interactive mode
 json_filename = annotate_scenario.main(scenario_json,output_filename,act_id,all_human_data)  
 
-        # json_filename = '/Users/anna/Dropbox/AOI/MoralLearning/CodeSets/graph_extract/data/scenarios_0_choice_1.json'
-        # translate_to_vis.main(json_filename)
+translate_to_vis.main(json_filename)
