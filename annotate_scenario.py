@@ -315,6 +315,7 @@ def convert_I_Ziv_item(old_item):
   new_sentence = this_resp[this_key[0]]
 
   return(new_sentence)
+  
 def convert_I_Ziv(old_sentence):
     
     this_resp=get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written from the perspective of a character name Ziv in third person instead of being written in the first person. Replace every instance of the first person pronoun (I, me, my, etc) with either the name Ziv or the pronouns they, their, them, etc. Return a json called 'converted text' with the converted text only.", old_sentence)
@@ -337,7 +338,7 @@ def score_values(this_scenario, this_act, values_list):
    
    system_prompt_content = f"""You are an expert on human actions. The user will share an action they chose to take in a situation and a list of values and anti-values that the action might have exhibited. Please rate to what extent the action is characterized by each value or anti-value. Use a scale of 0 to 100, where 0 indicates that this value or anti-value does not characterize this action, and 100 indicates that it very much characterizes this action. Return a json object with each value as a key and your rating as a value."""
 
-   user_prompt_content = f"Here is my scenario. {this_scenario} My action is to {this_act} To what extent is this action characterized by each of these traits? {values_list}"     
+   user_prompt_content = f"Here is my situation. {this_scenario} My action is to {this_act} To what extent is this action characterized by these values and anti-values? {values_list}"     
 
 
 
@@ -390,12 +391,12 @@ def process_values(this_scenario, this_act_I, this_act, g):
    
   # elicit action virtues and vicces
   values_positive= get_value_positive(this_scenario, this_act_I)
-  # print('\nvalues:')
+  print('\nvalues:')
   values_positive=get_emb_distances.threshold_by_sim(values_positive,.06)
-  # print(values_positive)
+  print(values_positive)
   values_negative= get_value_negative(this_scenario, this_act_I)
   values_negative=get_emb_distances.threshold_by_sim(values_negative,.06)
-  # print(values_negative)
+  print(values_negative)
   #combine positive and negative values into a single list
   all_values = {}
   all_values.update(values_positive)
@@ -422,14 +423,30 @@ def process_values(this_scenario, this_act_I, this_act, g):
 
   return (all_values_scored,all_values_flat_list)
 
-def evaluate_values(this_scenario, this_act_I, all_human_data):
+def evaluate_values(processed_values, this_scenario, this_act_I, all_human_data):  
    
     #for evaluation: score values from annotation list
     #then compare with human value score data
     hd_value_names = list(all_human_data['value_scores'].keys())
     hd_value_scores = all_human_data['value_scores'].values()
+    hd_values_missing =set([x.lower() for x in all_human_data['values_missing'].split(',')])
+    hd_highrated_valuenames = set([x for x in hd_value_names if all_human_data['value_scores'][x] > 70])
+    #print the missing values
+    print('Missing values:')
+    print(hd_values_missing)
 
-    # evaluation version: score values from annotation data. 
+    #does the list of values generated overlap with those rated highly by humans? by how much?
+    model_values = set(processed_values[1])
+    common_list = model_values.intersection(hd_highrated_valuenames)
+    print('Common high-rated values:')
+    print(common_list)
+
+    #compute percent overlap - of the model generated values, how many were highly rated?
+    overlap = len(common_list)/len(model_values)
+    print('Percent overlap with high-rated values: %.2f' %overlap)
+
+
+    # re-score values from annotation data already collected to evaluate the importance scoring
     annot_values_scored = score_values(this_scenario, this_act_I,', '.join(hd_value_names))
 
    # compare to scores from human data
@@ -647,11 +664,12 @@ def main(scenario_json,output_filename,act_id,all_human_data):
     #VALUE SCORES
     #get all values and anti-values
     processed_values  = process_values(this_scenario, this_act_I, this_act,g)
+
     all_values_scored = processed_values[0]
     scenario_dict["values"]= processed_values[1]
     
     #compare to human data
-    # evaluate_values(this_scenario, this_act_I, all_human_data)
+    evaluate_values(processed_values,this_scenario, this_act_I, all_human_data)
     
     # #OUTCOMES
     # ANNA double check that beings_list is the right thing
