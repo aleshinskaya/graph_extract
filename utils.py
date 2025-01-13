@@ -1,6 +1,14 @@
 import json
 import requests
 
+from dotenv import dotenv_values
+from dotenv import load_dotenv
+
+# set some environment and global variables
+load_dotenv() 
+global config
+config = dotenv_values(".env")
+
 
 # function to query GPT via openai API
 def promptGPT(prompt_message_list, gpt_temperature=0, debug=False):

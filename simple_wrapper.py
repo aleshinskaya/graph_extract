@@ -18,7 +18,7 @@ DATA_DIR_HUMAN = DATA_DIR+'/human_annotation/'
 #select scenario and action choice
 filename = 'scenarios.json'
 scenario_id = 0
-act_id = '1'
+act_id = '3'
 
 
 with open(DATA_DIR+filename, 'r') as file:

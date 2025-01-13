@@ -1,3 +1,5 @@
+import utils
+
 
 def get_beings(this_scenario):
 
@@ -5,7 +7,7 @@ def get_beings(this_scenario):
 
     user_prompt_content = f'Here is my scenario: {this_scenario}.'
 
-    return get_response_dict(system_prompt_content, user_prompt_content)
+    return utils.get_response_dict(system_prompt_content, user_prompt_content)
         
 def get_events(this_scenario, this_act):
 
@@ -13,13 +15,13 @@ def get_events(this_scenario, this_act):
     # print(system_prompt_content)
     user_prompt_content = f'Here is Ziv\'s scenario: {this_scenario}. Ziv decided to {this_act}. What outcomes are likely to arise a result of Ziv\'s decision?'
 
-    return get_response_dict(system_prompt_content, user_prompt_content)
+    return utils.get_response_dict(system_prompt_content, user_prompt_content)
            
 def convert_Ziv_I(old_sentence):
    
   #  function to turn Ziv into first person for output
   #  use a call to GPT to do this. 
-  this_resp=get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written in the first person perspective instead of in the third person about Ziv, replacing each reference to Ziv by name or pronoun with the correct first-person pronoun (I, me, or my). Return a json called 'converted sentence' with the converted text only.", old_sentence)
+  this_resp=utils.get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written in the first person perspective instead of in the third person about Ziv, replacing each reference to Ziv by name or pronoun with the correct first-person pronoun (I, me, or my). Return a json called 'converted sentence' with the converted text only.", old_sentence)
   this_key=list(this_resp.keys())
   new_sentence = this_resp[this_key[0]]
 
@@ -29,7 +31,7 @@ def convert_Ziv_I_item(old_item):
    
   #  function to turn Ziv into first person for output
   #  use a call to GPT to do this. 
-  this_resp=get_response_dict("You are an expert in English grammar. Take this phrase and replace each reference to the person Ziv with a first-person pronoun (I, me, or my). If Ziv is not explicitly mentioned, return the original text. Return a json called 'converted sentence' with the converted text only.", old_item)
+  this_resp=utils.get_response_dict("You are an expert in English grammar. Take this phrase and replace each reference to the person Ziv with a first-person pronoun (I, me, or my). If Ziv is not explicitly mentioned, return the original text. Return a json called 'converted sentence' with the converted text only.", old_item)
   this_key=list(this_resp.keys())
   new_sentence = this_resp[this_key[0]]
 
@@ -39,7 +41,7 @@ def convert_I_Ziv_item(old_item):
    
   #  function to turn Ziv into first person for output
   #  use a call to GPT to do this. 
-  this_resp=get_response_dict("You are an expert in English grammar. Take this phrase and replace each mention of the first-person pronouns I, me, or my with the name Ziv or Ziv's. If I, me, or my is not present, return the original text. Return a json called 'converted sentence' with the converted text only.", old_item)
+  this_resp=utils.get_response_dict("You are an expert in English grammar. Take this phrase and replace each mention of the first-person pronouns I, me, or my with the name Ziv or Ziv's. If I, me, or my is not present, return the original text. Return a json called 'converted sentence' with the converted text only.", old_item)
   this_key=list(this_resp.keys())
   new_sentence = this_resp[this_key[0]]
 
@@ -47,7 +49,7 @@ def convert_I_Ziv_item(old_item):
   
 def convert_I_Ziv(old_sentence):
     
-    this_resp=get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written from the perspective of a character name Ziv in third person instead of being written in the first person. Replace every instance of the first person pronoun (I, me, my, etc) with either the name Ziv or the pronouns they, their, them, etc. Return a json called 'converted text' with the converted text only.", old_sentence)
+    this_resp=utils.get_response_dict("You are an expert in English grammar. Rewrite the following text so that it is written from the perspective of a character name Ziv in third person instead of being written in the first person. Replace every instance of the first person pronoun (I, me, my, etc) with either the name Ziv or the pronouns they, their, them, etc. Return a json called 'converted text' with the converted text only.", old_sentence)
 
     this_key=list(this_resp.keys())
     new_sentence = this_resp[this_key[0]]
@@ -65,32 +67,37 @@ def convert_lower(sentence):
 # pass list of values and score their importance
 def score_values(this_scenario, this_act, values_list):
    
-   system_prompt_content = f"""You are an expert on human actions. The user will share an action they chose to take in a situation and a list of values and anti-values that the action might have exhibited. Please rate to what extent the action is characterized by each value or anti-value. Use a scale of 0 to 100, where 0 indicates that this value or anti-value does not characterize this action, and 100 indicates that it very much characterizes this action. Return a json object with each value as a key and your rating as a value."""
+   system_prompt_content = f"""You are an expert on human values and actions. The user will share a situation and an action they took, plus a list of values and anti-values that the action might have exhibited. Please rate to what extent the action is characterized by each value or anti-value. Use a scale of 0 to 100, where 0 indicates that this value or anti-value does not characterize this action, and 100 indicates that it very much characterizes this action. Return a json object with each value as a key and your rating as a value."""
 
    user_prompt_content = f"Here is my situation. {this_scenario} My action is to {this_act} To what extent is this action characterized by these values and anti-values? {values_list}"     
 
 
 
-   return get_response_dict(system_prompt_content, user_prompt_content)
+   return utils.get_response_dict(system_prompt_content, user_prompt_content)
+
+
+#    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take in a situation. Your task is to identify the values and virtues that the user exhibits by taking this action. Return a json object called 'values' listing the values and nothing more."""
+          
+#     user_prompt_content = f"""Here is my scenario. {this_scenario} My action is to {this_act} List the virtues and values of this action."""
 
 def get_value_positive(this_scenario, this_act):
 
-    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take in a situation. Your task is to identify the values and virtues that the user exhibits by taking this action. Return a json object called 'values' listing the values and nothing more."""
+    system_prompt_content = f"""You are an expert on human values. The user will share a situation and an action they decided to take. Identify the most important positive values and virtues that characterize this action. Return a json object called 'values' listing the values and nothing more."""
           
-    user_prompt_content = f"""Here is my scenario. {this_scenario} My action is to {this_act} List the virtues and values of this action."""
+    user_prompt_content = f"""Here is my scenario. {this_scenario} My action is to {this_act} List the most important values and virtues exhibited by this action."""
 
    
 
-    return get_response_dict(system_prompt_content, user_prompt_content)
+    return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 def get_value_negative(this_scenario, this_act):
 
-    system_prompt_content = f"""You are an expert on what humans value and don't value. The user will share an action they chose to take in a situation. Your task is to identify the anti-values and vices that the user exhibits by taking this action. Return a json object called 'anti-values' listing the anti-values and nothing more."""
+    system_prompt_content = f"""You are an expert on human vices. The user will share a situation and an action they decided to take. Identify the most important anti-values and vices that characterize this action. Return a json object called 'anti-values' listing the vices and nothing more."""
           
-    user_prompt_content = f"""Here is my scenario. {this_scenario}. My action is to {this_act} List the anti-values and vices of this action."""
+    user_prompt_content = f"""Here is my scenario. {this_scenario}. My action is to {this_act} List the most important vices exhibited by this action."""
          
 
-    return get_response_dict(system_prompt_content, user_prompt_content)
+    return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 
 
@@ -117,7 +124,7 @@ def get_impacts_Ziv(this_scenario, this_act, this_event, this_being):
         user_prompt_content = f'Here is the scenario: {this_scenario} {this_act} Consider the outcome that {this_event}. How does this outcome impact the character {this_being}?'
 
         # print(system_prompt_content, user_prompt_content)
-        return get_response_dict(system_prompt_content, user_prompt_content)
+        return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 
 def get_impacts_Ziv_multi(this_scenario, this_act, this_event, these_beings):
@@ -127,14 +134,14 @@ def get_impacts_Ziv_multi(this_scenario, this_act, this_event, these_beings):
         user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
 
         # print(system_prompt_content, user_prompt_content)
-        return get_response_dict(system_prompt_content, user_prompt_content)
+        return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 
 def find_semantic_match(item,list1):
   system_prompt_content = f"You are helpful assistant. You will be given a word or phrase and a list. Find the item in the list that is most similar in meaning to the word or phrase given. Return a json called 'result' with the word/phrase as key and the item as value."
   user_prompt_content = f"Here is my list: {list1}. Return the item in the list is most similar to the meaning of this word or phrase: {item}"
             
-  return get_response_dict(system_prompt_content, user_prompt_content)
+  return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings):
 
@@ -143,7 +150,7 @@ def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings
         user_prompt_content = f'Consider the event that {convert_lower(this_event)} Without considering any further consequences of this event, how does this event by itself directly impact each of these characters: {these_beings}?'
 
         # print(system_prompt_content, user_prompt_content)
-        return get_response_dict(system_prompt_content, user_prompt_content)
+        return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 # def get_being_links(this_scenario, this_act, this_event, beings):
         
@@ -154,7 +161,7 @@ def get_impacts_Ziv_noscenario(this_scenario, this_act, this_event, these_beings
 
 #         print(system_prompt_content, user_prompt_content)
 
-#         return get_response_dict(system_prompt_content, user_prompt_content)
+#         return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 
 def get_being_links_Ziv_only(this_scenario, this_act, this_event, this_being):
@@ -163,7 +170,7 @@ def get_being_links_Ziv_only(this_scenario, this_act, this_event, this_being):
 
         user_prompt_content = f"Here is the scenario: {this_scenario}. {this_act}, resulting in this outcome: {this_event}. For the character {this_being}, please answer the three questions relating to the outcome."         
 
-        return get_response_dict(system_prompt_content, user_prompt_content)
+        return utils.get_response_dict(system_prompt_content, user_prompt_content)
 
 # def get_being_links_Ziv(this_scenario, this_act, this_event, this_being):
         
@@ -171,4 +178,4 @@ def get_being_links_Ziv_only(this_scenario, this_act, this_event, this_being):
 
 #         user_prompt_content = f"Here is the scenario: {this_scenario}. Ziv chose to {this_act}, resulting in this outcome: {this_event}. For the character {this_being}, please answer the three questions relating to the outcome."         
 
-#         return get_response_dict(system_prompt_content, user_prompt_content)
+#         return utils.get_response_dict(system_prompt_content, user_prompt_content)
