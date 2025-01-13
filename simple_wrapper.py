@@ -9,6 +9,7 @@ importlib.reload(translate_to_vis)
 import pandas as pd
 
 
+
 CUR_DIR = os.path.dirname(os.path.abspath(__name__))
 DATA_DIR = CUR_DIR+'/data/'
 DATA_DIR_HUMAN = DATA_DIR+'/human_annotation/'
@@ -50,6 +51,8 @@ if os.path.exists(this_human_filename):
         this_human_data = pd.read_csv(this_human_filename)
         #use value_names as keys and mean as values and make a dictionary
         all_human_data['value_scores']= this_human_data.set_index('value_names')['mean'].to_dict()
+
+        all_human_data['values_missing']= this_human_data['values_missing'][0]
 else:
     print('No human annotation data found for this scenario and action choice.')
         
